@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="mqtt5"
+        id="1"
+        endian="big">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="Connect" val="1" />
+            <validValue name="Connack" val="2" />
+            <validValue name="Publish" val="3" />
+            <validValue name="Puback" val="4" />
+            <validValue name="Pubrec" val="5" />
+            <validValue name="Pubrel" val="6" />
+            <validValue name="Pubcomp" val="7" />
+            <validValue name="Subscribe" val="8" />
+            <validValue name="Suback" val="9" />
+            <validValue name="Unsubscribe" val="10" />
+            <validValue name="Unsuback" val="11" />
+            <validValue name="Pingreq" val="12" />
+            <validValue name="Pingresp" val="13" />
+            <validValue name="Disconnect" val="14" />
+            <validValue name="Auth" val="15" />
+        </enum>
+        <enum name="Qos" type="uint8">
+            <validValue name="AtMostOnceDelivery" val="0" />
+            <validValue name="AtLeastOnceDelivery" val="1" />
+            <validValue name="ExactlyOnceDelivery" val="2" />
+        </enum>
+        <int name="Length" type="uint16" />
+        <string name="String" lengthPrefix="Length" />
+        <data name="BinData" lengthPrefix="Length" />
+        <string reuse="String" name="ProtocolName" defaultValue="MQTT" displayName="Protocol Name"/>
+        <int name="PacketId" type="uint16" displayName="Packet ID"/>
+        <ref name="Topic" field="String" />
+        <int name="VarLenInt" type="uintvar" length="4" endian="little"/>
+        <int name="PropertyId" reuse="VarLenInt" displayReadOnly="true" failOnInvalid="true" displayName="Id"/>
+        <enum name="EnableEnum" type="uint8">
+            <validValue name="Disabled" val="0" />
+            <validValue name="Enabled" val="1"/>
+        </enum>
+
+
+        <variant name="Property" displayIdxReadOnlyHidden="true" displayName="_">
+            <bundle name="PayloadFormatIndicator" displayName="Property Format Indicator">
+                <int reuse="PropertyId" name="Id" defaultValue="1" validValue="1"/>
+                <enum name="Value" type="uint8">
+                    <validValue name="Unspecified" val="0" />
+                    <validValue name="Utf8" val="1" displayName="UTF-8"/>
+                </enum>
+            </bundle>
+            <bundle name="MessageExpiryInterval" displayName="Message Expiry Interval">
+                <int reuse="PropertyId" name="Id" defaultValue="2" validValue="2"/>
+                <int name="Value" type="uint32" units="seconds" />
+            </bundle>        
+            <bundle name="ContentType" displayName="Content Type">
+                <int reuse="PropertyId" name="Id" defaultValue="3" validValue="3"/>
+                <ref name="Value" field="String" />
+            </bundle>        
+            <bundle name="ResponseTopic" displayName="Response Topic">
+                <int reuse="PropertyId" name="Id" defaultValue="8" validValue="8"/>
+                <ref name="Value" field="String" />
+            </bundle>        
+            <bundle name="CorrelationData" displayName="Correlation Data">
+                <int reuse="PropertyId" name="Id" defaultValue="9" validValue="9"/>
+                <ref name="Value" field="BinData" />
+            </bundle>        
+            <bundle name="SubscriptionId" displayName="Subscription ID">
+                <int reuse="PropertyId" name="Id" defaultValue="11" validValue="11"/>
+                <ref name="Value" field="VarLenInt" />
+            </bundle>        
+            <bundle name="SessionExpiryInterval" displayName="Session Expiry Interval">
+                <int reuse="PropertyId" name="Id" defaultValue="17" validValue="17"/>
+                <int name="Value" type="uint32" units="seconds" />
+            </bundle>        
+            <bundle name="AssignedClientId" displayName="Assigned Client ID">
+                <int reuse="PropertyId" name="Id" defaultValue="18" validValue="18"/>
+                <ref name="Value" field="String" />
+            </bundle>        
+            <bundle name="ServerKeepAlive" displayName="Server Keep Alive">
+                <int reuse="PropertyId" name="Id" defaultValue="19" validValue="19"/>
+                <int name="Value" type="uint16" units="seconds" />
+            </bundle>        
+            <bundle name="AuthMethod" displayName="Authentication Method">
+                <int reuse="PropertyId" name="Id" defaultValue="21" validValue="21"/>
+                <ref name="Value" field="String" />
+            </bundle>        
+            <bundle name="AuthData" displayName="Authentication Data">
+                <int reuse="PropertyId" name="Id" defaultValue="22" validValue="22"/>
+                <ref name="Value" field="BinData" />
+            </bundle>        
+            <bundle name="RequestProblemInfo" displayName="Request Problem Information">
+                <int reuse="PropertyId" name="Id" defaultValue="23" validValue="23"/>
+                <ref name="Value" field="EnableEnum"  />
+            </bundle>
+            <bundle name="WillDelayInterval" displayName="Will Delay Interval">
+                <int reuse="PropertyId" name="Id" defaultValue="24" validValue="24"/>
+                <int name="Value" type="uint32" units="seconds" />
+            </bundle>        
+            <bundle name="RequestResponseInfo" displayName="Request Response Information">
+                <int reuse="PropertyId" name="Id" defaultValue="25" validValue="25"/>
+                <ref name="Value" field="EnableEnum"  />
+            </bundle>
+            <bundle name="ResponseInfo" displayName="Response Information">
+                <int reuse="PropertyId" name="Id" defaultValue="26" validValue="26"/>
+                <ref name="Value" field="String" />
+            </bundle>
+            <bundle name="ServerRef" displayName="Server Reference">
+                <int reuse="PropertyId" name="Id" defaultValue="28" validValue="28"/>
+                <ref name="Value" field="String" />
+            </bundle>
+            <bundle name="ReasonStr" displayName="Reason String">
+                <int reuse="PropertyId" name="Id" defaultValue="31" validValue="31"/>
+                <ref name="Value" field="String" />
+            </bundle>
+            <bundle name="ReceiveMax" displayName="Receive Maximum">
+                <int reuse="PropertyId" name="Id" defaultValue="33" validValue="33"/>
+                <int name="Value" type="uint16" defaultValue="0xffff" validMin="1" />
+            </bundle>
+            <bundle name="TopicAliasMax" displayName="Topic Alias Maximum">
+                <int reuse="PropertyId" name="Id" defaultValue="34" validValue="34"/>
+                <int name="Value" type="uint16" />
+            </bundle>
+            <bundle name="MaxQos" displayName="Maximum QoS">
+                <int reuse="PropertyId" name="Id" defaultValue="36" validValue="36"/>
+                <enum name="Value" type="uint8">
+                    <validValue name="AtMostOnceDelivery" val="0" />
+                    <validValue name="AtLeastOnceDelivery" val="1" />
+                </enum>
+            </bundle>
+            <bundle name="RetainAvailable" displayName="Retain Available">
+                <int reuse="PropertyId" name="Id" defaultValue="37" validValue="37"/>
+                <ref name="Value" field="EnableEnum"  />
+            </bundle>
+            <bundle name="UserProperty" displayName="User Property">
+                <int reuse="PropertyId" name="Id" defaultValue="37" validValue="37"/>
+                <bundle name="Value">
+                    <ref name="First" field="String" />
+                    <ref name="Second" field="String" />
+                </bundle>
+            </bundle>
+            <bundle name="MaxPacketSize" displayName="Maximum Packet Size">
+                <int reuse="PropertyId" name="Id" defaultValue="39" validValue="39"/>
+                <int name="Value" type="uint32" />
+            </bundle>
+            <bundle name="WildcardSubAvail" displayName="Wildcard Subscription Available">
+                <int reuse="PropertyId" name="Id" defaultValue="40" validValue="40"/>
+                <ref name="Value" field="EnableEnum"  />
+            </bundle>
+            <bundle name="SubIdAvail" displayName="Subscription ID Available">
+                <int reuse="PropertyId" name="Id" defaultValue="41" validValue="41"/>
+                <ref name="Value" field="EnableEnum"  />
+            </bundle>
+            <bundle name="SharedSubAvail" displayName="Shared Subscription Available">
+                <int reuse="PropertyId" name="Id" defaultValue="42" validValue="42"/>
+                <ref name="Value" field="EnableEnum"  />
+            </bundle>
+        </variant>
+
+        <list name="PropertiesList" element="Property" displayName="Properties">
+            <lengthPrefix>
+                <int reuse="VarLenInt" name="Length" />
+            </lengthPrefix>
+        </list>
+
+        <enum name="ReasonCode" type="uint8" nonUniqueAllowed="true" displayName="Reason Code">
+            <validValue name="Success" val="0" />
+            <validValue name="NormalDisconnection" val="0" displayName="Normal Disconnection" />
+            <validValue name="GrantedQos0" val="0" displayName="Granted QoS0" />
+            <validValue name="GrantedQos1" val="1" displayName="Granted QoS1" />
+            <validValue name="GrantedQos2" val="2" displayName="Granted QoS2" />
+            <validValue name="DisconnectWithWill" val="4" displayName="Disconnect w/ Will" />
+            <validValue name="NoMatchingSubscribers" val="16" displayName="No Matching Subscribers" />
+            <validValue name="NoSubscriptionExisted" val="17" displayName="No Subscription Existed" />
+            <validValue name="ContinueAuth" val="24" displayName="Continue authentication" />
+            <validValue name="ReAuth" val="25" displayName="Re-authenticate" />
+            <validValue name="UnspecifiedError" val="128" displayName="Unspecified error" />
+            <validValue name="MalformedPacket" val="129" displayName="Malformed Packet" />
+            <validValue name="ProtocolError" val="130" displayName="Protocol Error" />
+            <validValue name="ImplSpecificError" val="131" displayName="Impl. Specific Error" />
+            <validValue name="UnsupportedVersion" val="132" displayName="Unsupported Version" />
+            <validValue name="ClientIdInvalid" val="133" displayName="Client ID Invalid" />
+            <validValue name="BadUserPassword" val="134" displayName="Bad Username/Password" />
+            <validValue name="NotAuthorized" val="135" displayName="Not authorized" />
+            <validValue name="ServerUnavailable" val="136" displayName="Server unavailable" />
+            <validValue name="ServerBusy" val="137" displayName="Server busy" />
+            <validValue name="Banned" val="138" />
+            <validValue name="ServerShuttingDown" val="139" displayName="Server shutting down" />
+            <validValue name="BadAuthMethod" val="140" displayName="Bad auth method" />
+            <validValue name="KeepAliveTimeout" val="141" displayName="Keep Alive timeout" />
+            <validValue name="SessionTakenOver" val="142" displayName="Session taken over" />
+            <validValue name="TopicFilterInvalid" val="143" displayName="Topic Filter invalid" />
+            <validValue name="TopicNameInvalid" val="144" displayName="Topic Name invalid" />
+            <validValue name="PacketIdInUse" val="145" displayName="Packet ID in use" />
+            <validValue name="PacketIdNotFound" val="146" displayName="Packet ID not found" />
+            <validValue name="ReceiveMaxExceeded" val="147" displayName="Receive Max exceeded" />
+            <validValue name="TopicAliasInvalid" val="148" displayName="Topic Alias invalid" />
+            <validValue name="PacketTooLarge" val="149" displayName="Packet too large" />
+            <validValue name="MsgRateTooHigh" val="150" displayName="Message rate too high" />
+            <validValue name="QuotaExceeded" val="151" displayName="Quota exceeded" />
+            <validValue name="AdministrativeAction" val="152" displayName="Administrative action" />
+            <validValue name="PayloadFormatInvalid" val="153" displayName="Payload format invalid" />
+            <validValue name="RetainNotSupported" val="154" displayName="Retain not supported" />
+            <validValue name="QosNotSupported" val="155" displayName="QoS not supported" />
+            <validValue name="UseAnotherServer" val="156" displayName="Use another server" />
+            <validValue name="ServerMoved" val="157" displayName="Server moved" />
+            <validValue name="SharedSubNotSuppored" val="158" displayName="Shared Sub not supported" />
+            <validValue name="ConnectionRateExceeded" val="159" displayName="Connection rate exceeded" />
+            <validValue name="MaxConnectTime" val="160" displayName="Maximum connect time" />
+            <validValue name="SubIdsNotSupported" val="161" displayName="Sub IDs not supported" />
+            <validValue name="WildcardSubsNotSupported" val="162" displayName="Wildcard Subs not supported" />
+        </enum>
+    </fields>
+    
+    <interface name="Message">
+        <bitfield name="Flags">
+            <set name="Retain" bitLength="1" displayName="_">
+                <bit name="bit" idx="0" displayName="retain"/>
+            </set>
+            <enum reuse="Qos" bitLength="2" />
+            <set name="Dup" bitLength="5" displayName="_">
+                <bit name="bit" idx="0" displayName="dup"/>
+            </set>
+        </bitfield>    
+    </interface>
+    
+    <frame name="Frame">
+        <custom name="IdAndFlags" idReplacement="true">
+            <field>
+                <bitfield name="IdAndFlagsField" displayName="ID + Flags">
+                    <int name="Flags" type="uint8" bitLength="4" />
+                    <int name="Id" type="uint8" bitLength="4" />
+                </bitfield>              
+            </field>
+        </custom>
+        <size name="Size">
+            <field>
+                <int name="Size" type="uintvar" length="4" endian="little"/>
+            </field>
+        </size>
+        <payload name="Data" />
+    </frame>       
+    
+    <message name="Connect" id="MsgId.Connect" displayName="CONNECT" sender="client">
+        <ref field="ProtocolName" />
+        <int name="ProtocolVersion" type="uint8" defaultValue="5" validValue="5" displayName="Protocol Version"/>
+        <bitfield name="Flags" displayName="Connect Flags">
+            <set name="Low" bitLength="3" displayName="_">
+                <bit name="cleanStart" idx="1" displayName="Clean Start" />
+                <bit name="willFlag" idx="2" displayName="Will Flag" />
+            </set>
+            <enum reuse="Qos" name="WillQos" displayName="Will QoS" bitLength="2" />
+            <set name="High" bitLength="3" displayName="_">
+                <bit name="willRetain" idx="0" displayName="Will Retain" />
+                <bit name="passwordFlag" idx="1" displayName="Password Flag" />
+                <bit name="userNameFlag" idx="2" displayName="User Name Flag" />
+            </set>
+        </bitfield>
+        <int name="KeepAlive" type="uint16" displayName="Keep Alive" />
+        <ref field="PropertiesList" name="Properties" />
+        <ref name="ClientId" field="String" displayName="Client ID" />
+        <optional name="WillProperties" defaultMode="missing" externalModeCtrl="true" displayName="Will Properties">
+            <ref field="PropertiesList" name="WillProperties"  displayName="Will Properties" />
+        </optional>
+        <optional name="WillTopic" displayName="Will Topic" defaultMode="missing" externalModeCtrl="true">
+            <ref name="WillTopic" field="String" displayName="Will Topic" />           
+        </optional>
+        <optional name="WillMessage" displayName="Will Message" defaultMode="missing" externalModeCtrl="true">
+            <ref name="WillMessage" field="BinData" displayName="Will Message" />           
+        </optional>        
+        <optional name="UserName" displayName="User Name" defaultMode="missing" externalModeCtrl="true">
+            <ref name="UserName" field="String" displayName="User Name" />           
+        </optional>        
+        <optional name="Password" defaultMode="missing" externalModeCtrl="true">
+            <ref name="Password" field="BinData" />           
+        </optional>        
+    </message>
+    
+    <message name="Connack" id="MsgId.Connack" displayName="CONNACK" sender="server">
+        <set name="Flags" type="uint8" >
+            <bit name="sp" idx="0" displayName="Session Present" />
+        </set>  
+        <ref field="ReasonCode" />  
+        <ref field="PropertiesList" />
+    </message>    
+    
+    <message name="Publish" id="MsgId.Publish" displayName="PUBLISH">
+        <ref field="Topic" />
+        <optional name="PacketId" displayName="Packet ID" defaultMode="missing" externalModeCtrl="true">
+            <field value="PacketId" />
+        </optional>
+        <ref field="PropertiesList" />
+        <data name="Payload" />
+    </message>  
+    
+    <message name="Puback" id="MsgId.Puback" displayName="PUBACK">
+        <ref field="PacketId" />
+        <ref field="ReasonCode" />  
+        <ref field="PropertiesList" />
+    </message> 
+    
+    <message name="Pubrec" id="MsgId.Pubrec" displayName="PUBREC" copyFieldsFrom="Puback" />
+    
+    <message name="Pubrel" id="MsgId.Pubrel" displayName="PUBREL" copyFieldsFrom="Puback" />
+    
+    <message name="Pubcomp" id="MsgId.Pubcomp" displayName="PUBCOMP" copyFieldsFrom="Puback" />        
+    
+    <message name="Subscribe" id="MsgId.Subscribe" displayName="SUBSCRIBE" sender="client">
+        <ref field="PacketId" />
+        <ref field="PropertiesList" />
+        <list name="List">
+            <element>
+                <bundle name="Element" displayName="_">
+                    <ref field="Topic" />
+                    <bitfield name="Options">
+                        <enum reuse="Qos" bitLength="2" />
+                        <set name="Bits" bitLength="2" displayName="_">
+                            <bit name="NL" idx="0" />
+                            <bit name="RAP" idx="1" />
+                        </set>
+                        <enum name="RetainHandling" type="uint8" bitLength="2" displayName="Retain Handling">
+                            <validValue name="Send" val="0" />
+                            <validValue name="SendIfNotExists" val="1" />
+                            <validValue name="DontSend" val="2" />
+                        </enum>
+                        <int name="Reserved" type="uint8" validValue="0" bitLength="2" displayHidden="true" />
+                    </bitfield>
+                </bundle>
+            </element>
+        </list>
+    </message>
+    
+    <message name="Suback" id="MsgId.Suback" displayName="SUBACK" sender="server">
+        <ref field="PacketId" />
+        <ref field="PropertiesList" />
+        <list name="List" element="ReasonCode" />
+    </message>    
+    
+    <message name="Unsubscribe" id="MsgId.Unsubscribe" displayName="UNSUBSCRIBE" sender="client">
+        <ref field="PacketId" />
+        <ref field="PropertiesList" />
+        <list name="List" element="Topic" />
+    </message>    
+    
+    <message name="Unsuback" id="MsgId.Unsuback" displayName="UNSUBACK" sender="server">
+        <ref field="PacketId" />
+        <ref field="PropertiesList" />
+        <list name="List" element="ReasonCode" />
+    </message>      
+    
+    <message name="Pingreq" id="MsgId.Pingreq" displayName="PINGREQ" sender="client"/>  
+    
+    <message name="Pingresp" id="MsgId.Pingresp" displayName="PINGRESP" sender="server"/>
+    
+    <message name="Disconnect" id="MsgId.Disconnect" displayName="DISCONNECT">
+        <ref field="ReasonCode" />
+        <ref field="PropertiesList" />
+    </message>
+
+    <message name="Auth" id="MsgId.Auth" displayName="AUTH">
+        <ref field="ReasonCode" />
+        <ref field="PropertiesList" />
+    </message>
+</schema>

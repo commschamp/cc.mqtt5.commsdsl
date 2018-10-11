@@ -1,0 +1,18 @@
+bool refresh_packetId()
+{
+    auto& qosField = Base::transportField_flags().field_qos();
+    using QosFieldType = typename std::decay<decltype(qosField)>::type;
+    using QosValueType = typename QosFieldType::ValueType;
+    
+    auto mode = comms::field::OptionalMode::Missing;
+    if (QosValueType::AtMostOnceDelivery < qosField.value()) {
+        mode = comms::field::OptionalMode::Exists;
+    }
+    
+    if (field_packetId().getMode() == mode) {
+        return false;
+    }
+    
+    field_packetId().setMode(mode);
+    return true;
+}

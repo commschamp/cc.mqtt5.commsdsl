@@ -1,0 +1,9 @@
+/// @brief Default constructor
+Unsubscribe()
+{
+    auto& qosField = Base::transportField_flags().field_qos();
+    using QosFieldType = typename std::decay<decltype(qosField)>::type;
+    using QosValueType = typename QosFieldType::ValueType;
+    
+    qosField.value() = QosValueType::AtLeastOnceDelivery;
+}

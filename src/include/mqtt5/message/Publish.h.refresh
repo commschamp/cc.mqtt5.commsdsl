@@ -1,0 +1,6 @@
+/// @brief Custom refresh functionality
+bool doRefresh()
+{
+    bool updated = Base::doRefresh();
+    return refresh_packetId() || updated;
+}
