@@ -25,7 +25,7 @@ namespace layer
 /// @tparam TField Used field type
 /// @tparam TMessage Interface class
 /// @tparam TAllMessages Input messages
-/// @tparam TNext Layer Next frame layer
+/// @tparam TNextLayer Next frame layer
 /// @tparam TExtraOpt Extra options passed to @b comms::MsgFactory
 template <
     typename TField,
