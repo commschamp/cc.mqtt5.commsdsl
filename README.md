@@ -48,7 +48,7 @@ If code generation output directory is not provided, it defaults to
 $> cd /source/of/this/project
 $> mkdir build && cd build
 $> cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD/install 
-$> make install
+$> make 
 ```
 To build the generated project continue with
 ```
@@ -65,7 +65,7 @@ $> cd build
 $> cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release \ 
     -DCMAKE_INSTALL_PREFIX=%cd%/install \
     -DBOOST_ROOT="C:\Libraries\boost_1_65_1" -DBoost_USE_STATIC_LIBS=ON ..
-$> nmake install
+$> nmake 
 ```
 To build the generated project continue with
 ```
