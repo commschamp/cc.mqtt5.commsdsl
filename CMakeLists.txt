@@ -6,11 +6,24 @@ project ("cc.mqtt5.commsdsl")
 # OUTPUT_DIR - Path to output directory. If not provided <build_dir>/output one is used.
 # COMMSDSL2COMMS - Path to "commsdsl2comms" binary.
 # COMMSDSL2COMMS_EXTRA_ARGS - Extra arguments to pass to "commsdsl2comms"
+# COMMS_INSTALL_DIR - Directory where external COMMS library installed. If not specified
+#    it will be checked out automatically.
+# COMMSDSL_TAG - Tag of the commsdsl project to checkout (defaults to "master") if COMMSDSL2COMMS
+#     is not provided.
+# COMMS_TAG - Tag of the COMMS library to checkout (defaults to "master") if COMMS_INSTALL_DIR
+#     is not provided and examples are not disabled.
+
+if ("${COMMSDSL_TAG}" STREQUAL "")
+    set(COMMSDSL_TAG "develop")
+endif ()
+
+if ("${COMMS_TAG}" STREQUAL "")
+    set(COMMS_TAG "develop")
+endif ()
 
 set (COMMSDSL_TGT "commsdsl_tgt")
 if ("${COMMSDSL2COMMS}" STREQUAL "")
         include(ExternalProject)
-        set (commsdsl2comms_tag "develop")
         set (commsdsl2comms_main_dir "${CMAKE_BINARY_DIR}/commsdsl")
         set (commsdsl2comms_src_dir "${commsdsl2comms_main_dir}/src")
         set (commsdsl2comms_bin_dir "${commsdsl2comms_main_dir}/build")
@@ -26,7 +39,7 @@ if ("${COMMSDSL2COMMS}" STREQUAL "")
             PREFIX "${commsdsl2comms_bin_dir}"
             STAMP_DIR "${commsdsl2comms_bin_dir}"
             GIT_REPOSITORY "https://github.com/arobenko/commsdsl.git"
-            GIT_TAG "${commsdsl2comms_tag}"
+            GIT_TAG "${COMMSDSL_TAG}"
             SOURCE_DIR "${commsdsl2comms_src_dir}"
             CMAKE_ARGS
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${commsdsl2comms_install_dir}
@@ -87,4 +100,3 @@ add_custom_target(${PROJECT_NAME} ALL
         -DGENERATED="${tmp_dir}" -DOUTPUT="${OUTPUT_DIR}"
         -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"
     DEPENDS ${tmp_dir} ${readme_file} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
-    
