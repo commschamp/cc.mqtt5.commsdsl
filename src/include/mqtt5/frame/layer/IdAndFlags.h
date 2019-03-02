@@ -57,6 +57,7 @@ public:
     using MsgIdParamType = typename Message::MsgIdParamType;
     using MsgIdType = typename Message::MsgIdType;
     using Field = typename Base::Field;
+    using CreateFailureReason = typename Factory::CreateFailureReason;
 
     template <typename... TArgs>
     explicit IdAndFlags(TArgs&&... args)
@@ -95,14 +96,16 @@ public:
         }
 
         auto id = static_cast<MsgIdType>(field.field_id().value());
+        CreateFailureReason failureReason = CreateFailureReason::None;
         msgPtr = createMsg(id);
 
         if (!msgPtr) {
-            if (m_factory.msgCount(id) == 0U) {
-                return comms::ErrorStatus::InvalidMsgId;
-            }
-
-            return comms::ErrorStatus::MsgAllocFailure;
+            if (failureReason == CreateFailureReason::AllocFailure) {
+                return comms::ErrorStatus::MsgAllocFailure;
+            }        
+        
+            COMMS_ASSERT(failureReason == CreateFailureReason::InvalidId);
+            return comms::ErrorStatus::InvalidMsgId;
         }
 
         copyFlagsValue(field.field_flags(), msgPtr->transportField_flags());
