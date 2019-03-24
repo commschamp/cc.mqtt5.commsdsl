@@ -34,157 +34,63 @@ template <
     typename TNextLayer,
     typename... TExtraOpt>
 class IdAndFlags : public
-    comms::protocol::ProtocolLayerBase<
+    comms::protocol::MsgIdLayer<
         TField,
+        TMessage,
+        TAllMessages,
         TNextLayer,
-        IdAndFlags<TField, TMessage, TAllMessages, TNextLayer, TExtraOpt...>
+        TExtraOpt...,
+        comms::option::ExtendingClass<IdAndFlags<TField, TMessage, TAllMessages, TNextLayer, TExtraOpt...> >
     >
 {
     using Base =
-        comms::protocol::ProtocolLayerBase<
+        comms::protocol::MsgIdLayer<
             TField,
+            TMessage,
+            TAllMessages,
             TNextLayer,
-            IdAndFlags<TField, TMessage, TAllMessages, TNextLayer, TExtraOpt...>
+            TExtraOpt...,
+            comms::option::ExtendingClass<IdAndFlags<TField, TMessage, TAllMessages, TNextLayer, TExtraOpt...> >
         >;
-
-    using Factory = comms::MsgFactory<TMessage, TAllMessages, TExtraOpt...>;
-
 public:
 
-    using AllMessages = typename Factory::AllMessages;
-    using MsgPtr = typename Factory::MsgPtr;
-    using Message = typename MsgPtr::element_type;
-    using MsgIdParamType = typename Message::MsgIdParamType;
-    using MsgIdType = typename Message::MsgIdType;
+    /// @brief MsgIdParamType type is defined in the base class.
+    using MsgIdParamType = typename Base::MsgIdParamType;
+
+    /// @brief MsgIdType type is defined in the base class.
+    using MsgIdType = typename Base::MsgIdType;
+
+    /// @brief Field type is defined in the base class.
     using Field = typename Base::Field;
-    using CreateFailureReason = typename Factory::CreateFailureReason;
 
-    template <typename... TArgs>
-    explicit IdAndFlags(TArgs&&... args)
-       : Base(std::forward<TArgs>(args)...)
+    /// @brief Retrieve message ID value from the given field
+    static MsgIdType getMsgIdFromField(const Field& field)
     {
-    }
-
-    IdAndFlags(const IdAndFlags&) = default;
-
-    IdAndFlags(IdAndFlags&&) = default;
-
-    IdAndFlags& operator=(const IdAndFlags&) = default;
-
-    IdAndFlags& operator=(IdAndFlags&&) = default;
-
-    /// @brief Destructor
-    ~IdAndFlags() = default;
-
-    template <typename TMsgPtr, typename TIter, typename TNextLayerReader>
-    comms::ErrorStatus doRead(
-        Field& field,
-        TMsgPtr& msgPtr,
-        TIter& iter,
-        std::size_t size,
-        std::size_t* missingSize,
-        TNextLayerReader&& nextLayerReader)
-    {
-        GASSERT(!msgPtr);
-        auto es = field.read(iter, size);
-        if (es == comms::ErrorStatus::NotEnoughData) {
-            Base::updateMissingSize(field, size, missingSize);
-        }
-
-        if (es != comms::ErrorStatus::Success) {
-            return es;
-        }
-
-        auto id = static_cast<MsgIdType>(field.field_id().value());
-        CreateFailureReason failureReason = CreateFailureReason::None;
-        msgPtr = createMsg(id);
-
-        if (!msgPtr) {
-            if (failureReason == CreateFailureReason::AllocFailure) {
-                return comms::ErrorStatus::MsgAllocFailure;
-            }        
-        
-            COMMS_ASSERT(failureReason == CreateFailureReason::InvalidId);
-            return comms::ErrorStatus::InvalidMsgId;
-        }
-
-        copyFlagsValue(field.field_flags(), msgPtr->transportField_flags());
-
-        es = nextLayerReader.read(msgPtr, iter, size - field.length(), missingSize);
-        if (es != comms::ErrorStatus::Success) {
-            msgPtr.reset();
-        }
-
-        return es;
-    }
-
-    template <typename TMsg, typename TIter, typename TNextLayerWriter>
-    comms::ErrorStatus doWrite(
-        Field& field,
-        const TMsg& msg,
-        TIter& iter,
-        std::size_t size,
-        TNextLayerWriter&& nextLayerWriter) const
-    {
-        copyFlagsValue(msg.transportField_flags(), field.field_flags());
-        field.field_id().value() = getMsgId(msg);
-        auto es = field.write(iter, size);
-        if (es != comms::ErrorStatus::Success) {
-            return es;
-        }
-
-        GASSERT(field.length() <= size);
-        return nextLayerWriter.write(msg, iter, size - field.length());
-    }
-
-    MsgPtr createMsg(MsgIdParamType id, unsigned idx = 0)
-    {
-        return m_factory.createMsg(id, idx);
-    }
-
-private:
-
-    struct PolymorphicOpTag {};
-    struct DirectOpTag {};
-    
-    template <typename TMsg>
-    static MsgIdParamType getMsgId(const TMsg& msg, PolymorphicOpTag)
-    {
-        using MsgType = typename std::decay<decltype(msg)>::type;
-        static_assert(comms::isMessage<MsgType>(),
-            "The message class is expected to inherit from comms::Message");
-        static_assert(MsgType::InterfaceOptions::HasMsgIdInfo,
-            "The message interface class must expose polymorphic ID retrieval functionality, "
-            "use comms::option::IdInfoInterface option to define it.");
-
-        return msg.getId();
-    }
-
-    template <typename TMsg>
-    static constexpr MsgIdParamType getMsgId(const TMsg& msg, DirectOpTag)
-    {
-        return msg.doGetId();
-    }    
-    
-    template <typename TMsg>
-    static constexpr MsgIdParamType getMsgId(const TMsg& msg)
-    {
-        using Tag = 
-            typename std::conditional<
-                comms::protocol::details::protocolLayerHasDoGetId<TMsg>(),
-                DirectOpTag,
-                PolymorphicOpTag
-            >::type;
-        return getMsgId(msg, Tag());
+        return static_cast<MsgIdType>(field.field_id().value());
     }
     
-    template <typename TFrom, typename TTo>
-    static void copyFlagsValue(const TFrom& from, TTo& to)
+    /// @brief Set the flags to message object
+    template <typename TMsg>
+    static void beforeRead(const Field& field, TMsg& msg)
     {
-        to = comms::field_cast<TTo>(from);
+        auto& msgFlags = msg.transportField_flags();
+        using MsgFlagsFieldType = typename std::decay<decltype(msgFlags)>::type;
+        msgFlags = comms::field_cast<MsgFlagsFieldType>(field.field_flags());
     }
 
-    Factory m_factory;
+    /// @brief Assemble the field's value before its write.
+    template <typename TMsg>
+    static void prepareFieldForWrite(MsgIdParamType id, const TMsg& msg, Field& field)
+    {
+        auto& idField = field.field_id();
+        using IdFieldType = typename std::decay<decltype(idField)>::type;
+        using IdFieldValueType = typename IdFieldType::ValueType;
+        idField.value() = static_cast<IdFieldValueType>(id);
+
+        auto& fieldFlags = field.field_flags();
+        using FieldFlagsType = typename std::decay<decltype(fieldFlags)>::type;
+        fieldFlags = comms::field_cast<FieldFlagsType>(msg.transportField_flags());
+    }
 };
 
 } // namespace layer
