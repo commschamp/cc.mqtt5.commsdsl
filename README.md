@@ -6,9 +6,7 @@ the protocol specification [v5](http://docs.oasis-open.org/mqtt/mqtt/v5.0/cs02/m
 The protocol is defined in the [schema](dsl/schema.xml)
 file using [CommsDSL](https://github.com/arobenko/CommsDSL-Specification).
 The **commsds2comms** code generator from [commsdsl](https://github.com/arobenko/commsdsl)
-project is used to generate CMake project with proper C++ classes that
-implement protocol itself as well as protocol plugin for the
-[CommsChampion Tools](https://github.com/arobenko/comms_champion#commschampion-tools).
+project is used to generate C++11 code of the protocol implementation.
 
 The [src](src) folder contains additional and/or overriding default functionality 
 code snippets, that get injected into the generated code.
@@ -50,40 +48,25 @@ $> mkdir build && cd build
 $> cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD/install .. 
 $> make 
 ```
-To build the generated project continue with
-```
-$> cd output && mkdir build && cd build
-$> cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD/install ..
-$> make install
-```
 
 ### Windows Build
 ```
 $> cd C:\source\of\this\project
-$> mkdir build
-$> cd build
+$> mkdir build && cd build
 $> cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release \ 
     -DCMAKE_INSTALL_PREFIX=%cd%/install \
     -DBOOST_ROOT="C:\Libraries\boost_1_65_1" -DBoost_USE_STATIC_LIBS=ON ..
 $> nmake 
 ```
-To build the generated project continue with
-```
-$> cd output 
-$> mkdir build 
-$> cd build
-$> cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release \
-    -DCC_QT_DIR=C:\Qt\5.6.3\msvc2015 -DCMAKE_INSTALL_PREFIX=%cd%/install ..
-$> nmake install
-```
-To deploy Qt5 libraries into the installation directory continue with
-```
-$> nmake deploy_qt
-```
 
-# How to Use Generated Code
-Please read [How to Use Generated Code](https://github.com/arobenko/commsdsl#how-to-use-generated-code)
-guidelines from [commsdsl](https://github.com/arobenko/commsdsl) project.
+# Supported Compilers
+Please read [Supported Compilers](https://github.com/arobenko/commsdsl#supported-compilers)
+info from [commsdsl](https://github.com/arobenko/commsdsl) project.
+
+# How to Build and Use Generated Code
+Please read the
+[Generated CMake Project Walkthrough](https://github.com/arobenko/commsdsl/wiki/Generated-CMake-Project-Walkthrough)
+wiki page for details on the generated project internals.
 
 The [release](https://github.com/arobenko/cc.mqtt5.commsdsl/releases)
 artifacts contain doxygen generated documentation of the protocol definition.
