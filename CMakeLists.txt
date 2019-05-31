@@ -14,11 +14,11 @@ project ("cc.mqtt5.commsdsl")
 #     is not provided and examples are not disabled.
 
 if ("${COMMSDSL_TAG}" STREQUAL "")
-    set(COMMSDSL_TAG "v1.4.1")
+    set(COMMSDSL_TAG "dsl2")
 endif ()
 
 if ("${COMMS_TAG}" STREQUAL "")
-    set(COMMS_TAG "v1.2.2")
+    set(COMMS_TAG "develop")
 endif ()
 
 set (VERSION "0.7")
