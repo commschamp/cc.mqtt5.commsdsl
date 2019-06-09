@@ -1,24 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="mqtt5"
-        id="1"
-        endian="big">
+<schema name="mqtt5" endian="big" dslVersion="2">
     <fields>
+        <string name="ConnectName" defaultValue="CONNECT" />
+        <string name="ConnackName" defaultValue="CONNACK" />
+        <string name="PublishName" defaultValue="PUBLISH" />
+        <string name="PubackName" defaultValue="PUBACK" />
+        <string name="PubrecName" defaultValue="PUBREC" />
+        <string name="PubrelName" defaultValue="PUBREL" />
+        <string name="PubcompName" defaultValue="PUBCOMP" />
+        <string name="SubscribeName" defaultValue="SUBSCRIBE" />
+        <string name="SubackName" defaultValue="SUBACK" />
+        <string name="UnsubscribeName" defaultValue="UNSUBSCRIBE" />
+        <string name="UnsubackName" defaultValue="UNSUBACK" />
+        <string name="PingreqName" defaultValue="PINGREQ" />
+        <string name="PingrespName" defaultValue="PINGRESP" />
+        <string name="DisconnectName" defaultValue="DISCONNECT" />
+        <string name="AuthName" defaultValue="AUTH" />
+        
         <enum name="MsgId" type="uint8" semanticType="messageId" >
-            <validValue name="Connect" val="1" />
-            <validValue name="Connack" val="2" />
-            <validValue name="Publish" val="3" />
-            <validValue name="Puback" val="4" />
-            <validValue name="Pubrec" val="5" />
-            <validValue name="Pubrel" val="6" />
-            <validValue name="Pubcomp" val="7" />
-            <validValue name="Subscribe" val="8" />
-            <validValue name="Suback" val="9" />
-            <validValue name="Unsubscribe" val="10" />
-            <validValue name="Unsuback" val="11" />
-            <validValue name="Pingreq" val="12" />
-            <validValue name="Pingresp" val="13" />
-            <validValue name="Disconnect" val="14" />
-            <validValue name="Auth" val="15" />
+            <validValue name="Connect" val="1" displayName="^ConnectName" />
+            <validValue name="Connack" val="2" displayName="^ConnackName" />
+            <validValue name="Publish" val="3" displayName="^PublishName" />
+            <validValue name="Puback" val="4" displayName="^PubackName" />
+            <validValue name="Pubrec" val="5" displayName="^PubrecName" />
+            <validValue name="Pubrel" val="6" displayName="^PubrelName" />
+            <validValue name="Pubcomp" val="7" displayName="^PubcompName" />
+            <validValue name="Subscribe" val="8" displayName="^SubscribeName" />
+            <validValue name="Suback" val="9" displayName="^SubackName" />
+            <validValue name="Unsubscribe" val="10" displayName="^UnsubscribeName" />
+            <validValue name="Unsuback" val="11" displayName="^UnsubackName" />
+            <validValue name="Pingreq" val="12" displayName="^PingreqName" />
+            <validValue name="Pingresp" val="13" displayName="^PingrespName" />
+            <validValue name="Disconnect" val="14" displayName="^DisconnectName" />
+            <validValue name="Auth" val="15" displayName="^AuthName" />
         </enum>
         <enum name="Qos" type="uint8">
             <validValue name="AtMostOnceDelivery" val="0" />
@@ -131,7 +145,7 @@
                 <ref name="Value" field="EnableEnum"  />
             </bundle>
             <bundle name="UserProperty" displayName="User Property">
-                <int reuse="PropertyId" name="Id" defaultValue="37" validValue="37"/>
+                <int reuse="PropertyId" name="Id" defaultValue="38" validValue="38"/>
                 <bundle name="Value">
                     <ref name="First" field="String" />
                     <ref name="Second" field="String" />
@@ -215,7 +229,7 @@
             <set name="Retain" bitLength="1" displayName="_">
                 <bit name="bit" idx="0" displayName="retain"/>
             </set>
-            <enum reuse="Qos" bitLength="2" />
+            <ref field="Qos" bitLength="2" />
             <set name="Dup" bitLength="5" displayName="_">
                 <bit name="bit" idx="0" displayName="dup"/>
             </set>
@@ -227,7 +241,7 @@
             <field>
                 <bitfield name="IdAndFlagsField" displayName="ID + Flags">
                     <int name="Flags" type="uint8" bitLength="4" />
-                    <int name="Id" type="uint8" bitLength="4" />
+                    <ref name="Id" field="MsgId" bitLength="4" />
                 </bitfield>              
             </field>
         </custom>
@@ -239,7 +253,7 @@
         <payload name="Data" />
     </frame>       
     
-    <message name="Connect" id="MsgId.Connect" displayName="CONNECT" sender="client">
+    <message name="Connect" id="MsgId.Connect" displayName="^ConnectName" sender="client">
         <ref field="ProtocolName" />
         <int name="ProtocolVersion" type="uint8" defaultValue="5" validValue="5" displayName="Protocol Version"/>
         <bitfield name="Flags" displayName="Connect Flags">
@@ -247,7 +261,7 @@
                 <bit name="cleanStart" idx="1" displayName="Clean Start" />
                 <bit name="willFlag" idx="2" displayName="Will Flag" />
             </set>
-            <enum reuse="Qos" name="WillQos" displayName="Will QoS" bitLength="2" />
+            <ref field="Qos" name="WillQos" displayName="Will QoS" bitLength="2" />
             <set name="High" bitLength="3" displayName="_">
                 <bit name="willRetain" idx="0" displayName="Will Retain" />
                 <bit name="passwordFlag" idx="1" displayName="Password Flag" />
@@ -274,7 +288,7 @@
         </optional>        
     </message>
     
-    <message name="Connack" id="MsgId.Connack" displayName="CONNACK" sender="server">
+    <message name="Connack" id="MsgId.Connack" displayName="^ConnackName" sender="server">
         <set name="Flags" type="uint8" >
             <bit name="sp" idx="0" displayName="Session Present" />
         </set>  
@@ -282,7 +296,7 @@
         <ref field="PropertiesList" />
     </message>    
     
-    <message name="Publish" id="MsgId.Publish" displayName="PUBLISH">
+    <message name="Publish" id="MsgId.Publish" displayName="^PublishName">
         <ref field="Topic" />
         <optional name="PacketId" displayName="Packet ID" defaultMode="missing" displayExtModeCtrl="true">
             <field value="PacketId" />
@@ -291,19 +305,19 @@
         <data name="Payload" />
     </message>  
     
-    <message name="Puback" id="MsgId.Puback" displayName="PUBACK">
+    <message name="Puback" id="MsgId.Puback" displayName="^PubackName">
         <ref field="PacketId" />
         <ref field="ReasonCode" />  
         <ref field="PropertiesList" />
     </message> 
     
-    <message name="Pubrec" id="MsgId.Pubrec" displayName="PUBREC" copyFieldsFrom="Puback" />
+    <message name="Pubrec" id="MsgId.Pubrec" displayName="^PubrecName" copyFieldsFrom="Puback" />
     
-    <message name="Pubrel" id="MsgId.Pubrel" displayName="PUBREL" copyFieldsFrom="Puback" />
+    <message name="Pubrel" id="MsgId.Pubrel" displayName="^PubrelName" copyFieldsFrom="Puback" />
     
-    <message name="Pubcomp" id="MsgId.Pubcomp" displayName="PUBCOMP" copyFieldsFrom="Puback" />        
+    <message name="Pubcomp" id="MsgId.Pubcomp" displayName="^PubcompName" copyFieldsFrom="Puback" />        
     
-    <message name="Subscribe" id="MsgId.Subscribe" displayName="SUBSCRIBE" sender="client">
+    <message name="Subscribe" id="MsgId.Subscribe" displayName="^SubscribeName" sender="client">
         <ref field="PacketId" />
         <ref field="PropertiesList" />
         <list name="List">
@@ -311,7 +325,7 @@
                 <bundle name="Element" displayName="_">
                     <ref field="Topic" />
                     <bitfield name="Options">
-                        <enum reuse="Qos" bitLength="2" />
+                        <ref field="Qos" bitLength="2" />
                         <set name="Bits" bitLength="2" displayName="_">
                             <bit name="NL" idx="0" />
                             <bit name="RAP" idx="1" />
@@ -328,34 +342,34 @@
         </list>
     </message>
     
-    <message name="Suback" id="MsgId.Suback" displayName="SUBACK" sender="server">
+    <message name="Suback" id="MsgId.Suback" displayName="^SubackName" sender="server">
         <ref field="PacketId" />
         <ref field="PropertiesList" />
         <list name="List" element="ReasonCode" />
     </message>    
     
-    <message name="Unsubscribe" id="MsgId.Unsubscribe" displayName="UNSUBSCRIBE" sender="client">
+    <message name="Unsubscribe" id="MsgId.Unsubscribe" displayName="^UnsubscribeName" sender="client">
         <ref field="PacketId" />
         <ref field="PropertiesList" />
         <list name="List" element="Topic" />
     </message>    
     
-    <message name="Unsuback" id="MsgId.Unsuback" displayName="UNSUBACK" sender="server">
+    <message name="Unsuback" id="MsgId.Unsuback" displayName="^UnsubackName" sender="server">
         <ref field="PacketId" />
         <ref field="PropertiesList" />
         <list name="List" element="ReasonCode" />
     </message>      
     
-    <message name="Pingreq" id="MsgId.Pingreq" displayName="PINGREQ" sender="client"/>  
+    <message name="Pingreq" id="MsgId.Pingreq" displayName="^PingreqName" sender="client"/>  
     
-    <message name="Pingresp" id="MsgId.Pingresp" displayName="PINGRESP" sender="server"/>
+    <message name="Pingresp" id="MsgId.Pingresp" displayName="^PingrespName" sender="server"/>
     
-    <message name="Disconnect" id="MsgId.Disconnect" displayName="DISCONNECT">
+    <message name="Disconnect" id="MsgId.Disconnect" displayName="^DisconnectName">
         <ref field="ReasonCode" />
         <ref field="PropertiesList" />
     </message>
 
-    <message name="Auth" id="MsgId.Auth" displayName="AUTH">
+    <message name="Auth" id="MsgId.Auth" displayName="^AuthName">
         <ref field="ReasonCode" />
         <ref field="PropertiesList" />
     </message>
