@@ -272,10 +272,10 @@
         <ref field="PropertiesList" name="Properties" />
         <ref name="ClientId" field="String" displayName="Client ID" />
         <optional name="WillProperties" defaultMode="missing" displayExtModeCtrl="true" displayName="Will Properties">
-            <ref field="PropertiesList" name="WillProperties"  displayName="Will Properties" />
+            <ref field="PropertiesList" name="Properties"  displayName="Will Properties" />
         </optional>
         <optional name="WillTopic" displayName="Will Topic" defaultMode="missing" displayExtModeCtrl="true">
-            <ref name="WillTopic" field="String" displayName="Will Topic" />           
+            <ref name="Topic" field="String" displayName="Will Topic" />           
         </optional>
         <optional name="WillMessage" displayName="Will Message" defaultMode="missing" displayExtModeCtrl="true">
             <ref name="WillMessage" field="BinData" displayName="Will Message" />           
