@@ -4,8 +4,8 @@ This repository contains **generated** definition of
 protocol. 
 
 Please read the
-[Generated CMake Project Walkthrough](https://github.com/arobenko/commsdsl/wiki/Generated-CMake-Project-Walkthrough)
-wiki page for details on this repository internals.
+[Generated CMake Project Walkthrough](https://github.com/arobenko/commsdsl/blob/master/doc/GeneratedProjectWalkthrough.md)
+documentation page for details on this repository internals.
 
 Please refer to [cc.mqtt5.commsdsl](https://github.com/arobenko/cc.mqtt5.commsdsl)
 origin protocol definition repository, which uses

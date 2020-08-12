@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.5)
 project ("cc.mqtt5.commsdsl")
 
+option (MQTT5_NO_WARN_AS_ERR "Don't treat compilation warnings as errors." OFF)
+
 # Additional variables to be used if needed
 # ---------------------------
 # OUTPUT_DIR - Path to output directory. If not provided <build_dir>/output one is used.
@@ -14,20 +16,26 @@ project ("cc.mqtt5.commsdsl")
 #     is not provided and examples are not disabled.
 
 if ("${COMMSDSL_TAG}" STREQUAL "")
-    set(COMMSDSL_TAG "v3.4.2")
+    set(COMMSDSL_TAG "v3.5")
 endif ()
 
 if ("${COMMS_TAG}" STREQUAL "")
-    set(COMMS_TAG "v2.4.1")
+    set(COMMS_TAG "v3.0")
 endif ()
 
-set (VERSION "0.17")
+set (VERSION "0.18")
+
+set (EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
 
 set (COMMSDSL_TGT "commsdsl_tgt")
 if ("${COMMSDSL2COMMS}" STREQUAL "")
+        execute_process (
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${EXTERNALS_DIR}"
+        )   
+        
         include(ExternalProject)
-        set (commsdsl2comms_main_dir "${CMAKE_BINARY_DIR}/commsdsl")
-        set (commsdsl2comms_src_dir "${commsdsl2comms_main_dir}/src")
+        set (commsdsl2comms_main_dir "${PROJECT_BINARY_DIR}/commsdsl")
+        set (commsdsl2comms_src_dir "${EXTERNALS_DIR}/commsdsl")
         set (commsdsl2comms_bin_dir "${commsdsl2comms_main_dir}/build")
         set (commsdsl2comms_install_dir "${commsdsl2comms_main_dir}/install")
         
@@ -76,6 +84,11 @@ file (GLOB_RECURSE src_files ${code_input_dir})
 set (extra_dep)
 if (TARGET ${COMMSDSL_TGT})
     set (extra_dep ${COMMSDSL_TGT})
+endif ()
+
+set (warn_as_error "--warn-as-err")
+if (MQTT5_NO_WARN_AS_ERR)
+    set (warn_as_error)
 endif ()
 
 add_custom_target(rm_tmp_tgt
