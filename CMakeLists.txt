@@ -16,14 +16,14 @@ option (MQTT5_NO_WARN_AS_ERR "Don't treat compilation warnings as errors." OFF)
 #     is not provided and examples are not disabled.
 
 if ("${COMMSDSL_TAG}" STREQUAL "")
-    set(COMMSDSL_TAG "v3.6")
+    set(COMMSDSL_TAG "v3.6.2")
 endif ()
 
 if ("${COMMS_TAG}" STREQUAL "")
-    set(COMMS_TAG "v3.1.3")
+    set(COMMS_TAG "v3.2")
 endif ()
 
-set (VERSION "0.20")
+set (VERSION "0.20.1")
 
 set (EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
 
