@@ -29,15 +29,6 @@ project is used to generate appropriate C++ code. If path to externally
 built **commsdsl2comms** is not provided, then this project will build the
 latter itself.
 
-The **commsdsl2comms** application (if built internally) requires 
-[Boost](https://www.boost.org) library.
-In case Boost libraries are not installed in expected default location
-(mostly happens on Windows systems), use variables described in 
-[CMake documentation](https://cmake.org/cmake/help/v3.8/module/FindBoost.html) 
-to help CMake find required libraries and headers. 
-It is recommended to use `-DBoost_USE_STATIC_LIBS=ON` parameter to force
-linkage with static Boost libraries.
-
 If code generation output directory is not provided, it defaults to 
 `output` subdirectory of the one used to build the project.
 
@@ -54,8 +45,7 @@ $> make
 $> cd C:\source\of\this\project
 $> mkdir build && cd build
 $> cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release \ 
-    -DCMAKE_INSTALL_PREFIX=%cd%/install \
-    -DBOOST_ROOT="C:\Libraries\boost_1_65_1" -DBoost_USE_STATIC_LIBS=ON ..
+    -DCMAKE_INSTALL_PREFIX=%cd%/install 
 $> nmake 
 ```
 
