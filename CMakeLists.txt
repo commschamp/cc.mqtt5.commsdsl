@@ -95,7 +95,7 @@ endif ()
 
 set (code_input_param)
 if (EXISTS "${code_input_dir}/")
-    set (code_input_param "-c ${code_input_dir}")
+    set (code_input_param -c ${code_input_dir})
 endif()
 
 file (GLOB_RECURSE src_files ${code_input_dir})
