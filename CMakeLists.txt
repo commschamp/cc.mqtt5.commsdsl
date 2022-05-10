@@ -20,7 +20,7 @@ option (MQTT5_NO_WARN_AS_ERR "Don't treat compilation warnings as errors." OFF)
 # COMMSDSL_CXX_COMPILER - "C++" Compiler for commsdsl project
 
 if ("${COMMSDSL_TAG}" STREQUAL "")
-    set(COMMSDSL_TAG "develop")
+    set(COMMSDSL_TAG "v4.0")
 endif ()
 
 if ("${COMMS_TAG}" STREQUAL "")
