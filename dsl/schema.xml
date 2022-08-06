@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="mqtt5" endian="big" dslVersion="2">
+<schema name="mqtt5" endian="big" dslVersion="5">
     <fields>
         <string name="ConnectName" defaultValue="CONNECT" />
         <string name="ConnackName" defaultValue="CONNACK" />
@@ -51,7 +51,6 @@
             <validValue name="Disabled" val="0" />
             <validValue name="Enabled" val="1"/>
         </enum>
-
 
         <variant name="Property" displayIdxReadOnlyHidden="true" displayName="_">
             <bundle name="PayloadFormatIndicator" displayName="Property Format Indicator">
@@ -237,7 +236,7 @@
     </interface>
     
     <frame name="Frame">
-        <custom name="IdAndFlags" idReplacement="true">
+        <custom name="IdAndFlags" semanticLayerType="id">
             <field>
                 <bitfield name="IdAndFlagsField" displayName="ID + Flags">
                     <int name="Flags" type="uint8" bitLength="4" />
@@ -253,9 +252,9 @@
         <payload name="Data" />
     </frame>       
     
-    <message name="Connect" id="MsgId.Connect" displayName="^ConnectName" sender="client">
+    <message name="Connect" id="MsgId.Connect" displayName="^ConnectName" validOverride="extend" sender="client">
         <ref field="ProtocolName" />
-        <int name="ProtocolVersion" type="uint8" defaultValue="5" validValue="5" displayName="Protocol Version"/>
+        <int name="ProtocolVersion" type="uint8" defaultValidValue="5" failOnInvalid="true" displayName="Protocol Version"/>
         <bitfield name="Flags" displayName="Connect Flags">
             <set name="Low" bitLength="3" displayName="_">
                 <bit name="cleanStart" idx="1" displayName="Clean Start" />
@@ -272,23 +271,38 @@
         <ref field="PropertiesList" name="Properties" />
         <ref name="ClientId" field="String" displayName="Client ID" />
         <optional name="WillProperties" defaultMode="missing" displayExtModeCtrl="true" displayName="Will Properties">
-            <ref field="PropertiesList" name="Properties"  displayName="Will Properties" />
+            <cond value="$Flags.Low.willFlag" />
+            <field>
+                <ref field="PropertiesList" name="Properties"  displayName="Will Properties" />
+            </field>
         </optional>
         <optional name="WillTopic" displayName="Will Topic" defaultMode="missing" displayExtModeCtrl="true">
-            <ref name="Topic" field="String" displayName="Will Topic" />           
+            <cond value="$Flags.Low.willFlag" />
+            <field>
+                <ref name="WillTopic" field="String" displayName="Will Topic" />           
+            </field>
         </optional>
         <optional name="WillMessage" displayName="Will Message" defaultMode="missing" displayExtModeCtrl="true">
-            <ref name="WillMessage" field="BinData" displayName="Will Message" />           
+            <cond value="$Flags.Low.willFlag" />
+            <field>
+                <ref name="WillMessage" field="BinData" displayName="Will Message" />           
+            </field>
         </optional>        
         <optional name="UserName" displayName="User Name" defaultMode="missing" displayExtModeCtrl="true">
-            <ref name="UserName" field="String" displayName="User Name" />           
+            <cond value="$Flags.High.userNameFlag" />
+            <field>
+                <ref name="UserName" field="String" displayName="User Name" />           
+            </field>
         </optional>        
         <optional name="Password" defaultMode="missing" displayExtModeCtrl="true">
-            <ref name="Password" field="BinData" />           
+            <cond value="$Flags.High.passwordFlag" />
+            <field>
+                <ref name="Password" field="BinData" />           
+            </field>
         </optional>        
     </message>
     
-    <message name="Connack" id="MsgId.Connack" displayName="^ConnackName" sender="server">
+    <message name="Connack" id="MsgId.Connack" displayName="^ConnackName" validOverride="extend" sender="server">
         <set name="Flags" type="uint8" >
             <bit name="sp" idx="0" displayName="Session Present" />
         </set>  
@@ -296,7 +310,7 @@
         <ref field="PropertiesList" />
     </message>    
     
-    <message name="Publish" id="MsgId.Publish" displayName="^PublishName">
+    <message name="Publish" id="MsgId.Publish" displayName="^PublishName" readOverride="replace" refreshOverride="replace">
         <ref field="Topic" />
         <optional name="PacketId" displayName="Packet ID" defaultMode="missing" displayExtModeCtrl="true">
             <field value="PacketId" />
@@ -305,19 +319,19 @@
         <data name="Payload" />
     </message>  
     
-    <message name="Puback" id="MsgId.Puback" displayName="^PubackName">
+    <message name="Puback" id="MsgId.Puback" displayName="^PubackName" validOverride="extend">
         <ref field="PacketId" />
         <ref field="ReasonCode" />  
         <ref field="PropertiesList" />
     </message> 
     
-    <message name="Pubrec" id="MsgId.Pubrec" displayName="^PubrecName" copyFieldsFrom="Puback" />
+    <message name="Pubrec" id="MsgId.Pubrec" displayName="^PubrecName" copyFieldsFrom="Puback" validOverride="extend" />
     
-    <message name="Pubrel" id="MsgId.Pubrel" displayName="^PubrelName" copyFieldsFrom="Puback" />
+    <message name="Pubrel" id="MsgId.Pubrel" displayName="^PubrelName" copyFieldsFrom="Puback" validOverride="extend" />
     
-    <message name="Pubcomp" id="MsgId.Pubcomp" displayName="^PubcompName" copyFieldsFrom="Puback" />        
+    <message name="Pubcomp" id="MsgId.Pubcomp" displayName="^PubcompName" copyFieldsFrom="Puback" validOverride="extend" />        
     
-    <message name="Subscribe" id="MsgId.Subscribe" displayName="^SubscribeName" sender="client">
+    <message name="Subscribe" id="MsgId.Subscribe" displayName="^SubscribeName" validOverride="extend" sender="client">
         <ref field="PacketId" />
         <ref field="PropertiesList" />
         <list name="List">
@@ -360,9 +374,9 @@
         <list name="List" element="ReasonCode" />
     </message>      
     
-    <message name="Pingreq" id="MsgId.Pingreq" displayName="^PingreqName" sender="client"/>  
+    <message name="Pingreq" id="MsgId.Pingreq" displayName="^PingreqName" validOverride="extend" sender="client"/>  
     
-    <message name="Pingresp" id="MsgId.Pingresp" displayName="^PingrespName" sender="server"/>
+    <message name="Pingresp" id="MsgId.Pingresp" displayName="^PingrespName" validOverride="extend"  sender="server"/>
     
     <message name="Disconnect" id="MsgId.Disconnect" displayName="^DisconnectName">
         <ref field="ReasonCode" />
