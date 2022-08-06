@@ -24,29 +24,39 @@ This project uses CMake as its build system. Please open main
 mentioned available parameters, which can be used in addition to standard 
 ones provided by CMake itself, to modify the default build. 
 
-The **commsdsl2comms** application from [commsdsl](https://github.com/commschamp/commsdsl)
-project is used to generate appropriate C++ code. If path to externally
-built **commsdsl2comms** is not provided, then this project will build the
-latter itself.
-
-If code generation output directory is not provided, it defaults to 
-`output` subdirectory of the one used to build the project.
+This project also has external dependencies, it requires an access to
+the [COMMS Library](https://github.com/commschamp/commsdsl) and
+code generators from [commsdsl](https://github.com/commschamp/commsdsl) projects.
+These dependencies are expected to be built independenty and access to them provided
+via standard **CMAKE_PREFIX_PATH** and/or **CMAKE_PROGRAM_PATH** (for the binaries of
+the code generators). There are also scripts (
+[script/prepare_externals.sh](script/prepare_externals.sh) for Linux and
+[script/prepare_externals.bat](script/prepare_externals.bat) for Windows)
+which can help in preparation of these dependencies. They are also used
+in configuration of the [github actions](.github/workflows/actions_build.yml) and
+[appveyor](.appveyor.yml).
 
 ### Linux Build
 ```
 $> cd /source/of/this/project
 $> mkdir build && cd build
-$> cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD/install .. 
-$> make 
+$> BUILD_DIR=$PWD CC=gcc CXX=g++ COMMON_INSTALL_DIR=$PWD/install COMMON_BUILD_TYPE=Release ../script/prepare_externals.sh
+$> cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install
+$> make install
 ```
 
 ### Windows Build
 ```
 $> cd C:\source\of\this\project
 $> mkdir build && cd build
-$> cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release \ 
-    -DCMAKE_INSTALL_PREFIX=%cd%/install 
-$> nmake 
+$> set BUILD_DIR=%cd%
+$> set GENERATOR="NMake Makefiles"
+$> set QTDIR=C:\Qt\5.15.2
+$> set COMMON_INSTALL_DIR=%cd%/install
+$> ..\script\prepare_externals.bat
+$> cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ^
+    -DCMAKE_INSTALL_PREFIX=%cd%/install -DCMAKE_PREFIX_PATH=%cd%\install 
+$> nmake install
 ```
 
 # Supported Compilers
