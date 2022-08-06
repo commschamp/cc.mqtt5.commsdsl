@@ -54,116 +54,117 @@
 
         <variant name="Property" displayIdxReadOnlyHidden="true" displayName="_">
             <bundle name="PayloadFormatIndicator" displayName="Property Format Indicator">
-                <int reuse="PropertyId" name="Id" defaultValue="1" validValue="1"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="1" />
                 <enum name="Value" type="uint8">
                     <validValue name="Unspecified" val="0" />
                     <validValue name="Utf8" val="1" displayName="UTF-8"/>
                 </enum>
             </bundle>
             <bundle name="MessageExpiryInterval" displayName="Message Expiry Interval">
-                <int reuse="PropertyId" name="Id" defaultValue="2" validValue="2"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="2" />
                 <int name="Value" type="uint32" units="seconds" />
             </bundle>        
             <bundle name="ContentType" displayName="Content Type">
-                <int reuse="PropertyId" name="Id" defaultValue="3" validValue="3"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="3" />
                 <ref name="Value" field="String" />
             </bundle>        
             <bundle name="ResponseTopic" displayName="Response Topic">
-                <int reuse="PropertyId" name="Id" defaultValue="8" validValue="8"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="8" />
                 <ref name="Value" field="String" />
             </bundle>        
             <bundle name="CorrelationData" displayName="Correlation Data">
-                <int reuse="PropertyId" name="Id" defaultValue="9" validValue="9"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="9" />
                 <ref name="Value" field="BinData" />
             </bundle>        
             <bundle name="SubscriptionId" displayName="Subscription ID">
-                <int reuse="PropertyId" name="Id" defaultValue="11" validValue="11"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="11" />
                 <ref name="Value" field="VarLenInt" />
             </bundle>        
             <bundle name="SessionExpiryInterval" displayName="Session Expiry Interval">
-                <int reuse="PropertyId" name="Id" defaultValue="17" validValue="17"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="17" />
                 <int name="Value" type="uint32" units="seconds" />
             </bundle>        
             <bundle name="AssignedClientId" displayName="Assigned Client ID">
-                <int reuse="PropertyId" name="Id" defaultValue="18" validValue="18"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="18" />
                 <ref name="Value" field="String" />
             </bundle>        
             <bundle name="ServerKeepAlive" displayName="Server Keep Alive">
-                <int reuse="PropertyId" name="Id" defaultValue="19" validValue="19"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="19" />
                 <int name="Value" type="uint16" units="seconds" />
             </bundle>        
             <bundle name="AuthMethod" displayName="Authentication Method">
-                <int reuse="PropertyId" name="Id" defaultValue="21" validValue="21"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="21" />
                 <ref name="Value" field="String" />
             </bundle>        
             <bundle name="AuthData" displayName="Authentication Data">
-                <int reuse="PropertyId" name="Id" defaultValue="22" validValue="22"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="22" />
                 <ref name="Value" field="BinData" />
             </bundle>        
             <bundle name="RequestProblemInfo" displayName="Request Problem Information">
-                <int reuse="PropertyId" name="Id" defaultValue="23" validValue="23"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="23" />
                 <ref name="Value" field="EnableEnum"  />
             </bundle>
             <bundle name="WillDelayInterval" displayName="Will Delay Interval">
-                <int reuse="PropertyId" name="Id" defaultValue="24" validValue="24"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="24" />
                 <int name="Value" type="uint32" units="seconds" />
             </bundle>        
             <bundle name="RequestResponseInfo" displayName="Request Response Information">
-                <int reuse="PropertyId" name="Id" defaultValue="25" validValue="25"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="25" />
                 <ref name="Value" field="EnableEnum"  />
             </bundle>
             <bundle name="ResponseInfo" displayName="Response Information">
-                <int reuse="PropertyId" name="Id" defaultValue="26" validValue="26"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="26" />
                 <ref name="Value" field="String" />
             </bundle>
             <bundle name="ServerRef" displayName="Server Reference">
-                <int reuse="PropertyId" name="Id" defaultValue="28" validValue="28"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="28" />
                 <ref name="Value" field="String" />
             </bundle>
             <bundle name="ReasonStr" displayName="Reason String">
-                <int reuse="PropertyId" name="Id" defaultValue="31" validValue="31"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="31" />
                 <ref name="Value" field="String" />
             </bundle>
             <bundle name="ReceiveMax" displayName="Receive Maximum">
-                <int reuse="PropertyId" name="Id" defaultValue="33" validValue="33"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="33" />
                 <int name="Value" type="uint16" defaultValue="0xffff" validMin="1" />
             </bundle>
             <bundle name="TopicAliasMax" displayName="Topic Alias Maximum">
-                <int reuse="PropertyId" name="Id" defaultValue="34" validValue="34"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="34" />
                 <int name="Value" type="uint16" />
             </bundle>
+            <bundle name="TopicAlias" displayName="Topic Alias Maximum">
+                <int reuse="PropertyId" name="Id" defaultValidValue="35" />
+                <int name="Value" type="uint16" />
+            </bundle>            
             <bundle name="MaxQos" displayName="Maximum QoS">
-                <int reuse="PropertyId" name="Id" defaultValue="36" validValue="36"/>
-                <enum name="Value" type="uint8">
-                    <validValue name="AtMostOnceDelivery" val="0" />
-                    <validValue name="AtLeastOnceDelivery" val="1" />
-                </enum>
+                <int reuse="PropertyId" name="Id" defaultValidValue="36" />
+                <ref field="Qos" name="Value" />
             </bundle>
             <bundle name="RetainAvailable" displayName="Retain Available">
-                <int reuse="PropertyId" name="Id" defaultValue="37" validValue="37"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="37" />
                 <ref name="Value" field="EnableEnum"  />
             </bundle>
             <bundle name="UserProperty" displayName="User Property">
-                <int reuse="PropertyId" name="Id" defaultValue="38" validValue="38"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="38" />
                 <bundle name="Value">
                     <ref name="First" field="String" />
                     <ref name="Second" field="String" />
                 </bundle>
             </bundle>
             <bundle name="MaxPacketSize" displayName="Maximum Packet Size">
-                <int reuse="PropertyId" name="Id" defaultValue="39" validValue="39"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="39" />
                 <int name="Value" type="uint32" />
             </bundle>
             <bundle name="WildcardSubAvail" displayName="Wildcard Subscription Available">
-                <int reuse="PropertyId" name="Id" defaultValue="40" validValue="40"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="40" />
                 <ref name="Value" field="EnableEnum"  />
             </bundle>
             <bundle name="SubIdAvail" displayName="Subscription ID Available">
-                <int reuse="PropertyId" name="Id" defaultValue="41" validValue="41"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="41" />
                 <ref name="Value" field="EnableEnum"  />
             </bundle>
             <bundle name="SharedSubAvail" displayName="Shared Subscription Available">
-                <int reuse="PropertyId" name="Id" defaultValue="42" validValue="42"/>
+                <int reuse="PropertyId" name="Id" defaultValidValue="42" />
                 <ref name="Value" field="EnableEnum"  />
             </bundle>
         </variant>
