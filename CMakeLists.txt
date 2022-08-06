@@ -2,78 +2,30 @@ cmake_minimum_required (VERSION 3.5)
 project ("cc.mqtt5.commsdsl")
 
 option (MQTT5_NO_WARN_AS_ERR "Don't treat compilation warnings as errors." OFF)
+option (MQTT5_USE_CCACHE "Use ccache on UNIX." ON)
+option (MQTT5_BUILD_GEN_PROTOCOL "Build and install generated protocol" ON)
+option (MQTT5_BUILD_GEN_DOC "Build documentation for generated protocol" ${MQTT5_BUILD_GEN_PROTOCOL})
+option (MQTT5_BUILD_GEN_TEST "Build and install generated test application" OFF)
+option (MQTT5_BUILD_GEN_TOOLS "Build and install generated plugin for tools" OFF)
 
 # Additional variables to be used if needed
 # ---------------------------
-# PROT_OUTPUT_DIR - Path to protocol output directory. If not provided <build_dir>/output one is used.
-# TEST_OUTPUT_DIR - Path to test output directory. If not provided <build_dir>/output_tools one is used.
-# TOOLS_OUTPUT_DIR - Path to tools output directory. If not provided <build_dir>/output_tools one is used.
-# COMMSDSL_INSTALL_DIR - Path to "commsdsl" installation directory.
+# MQTT5_PROT_OUTPUT_DIR - Path to protocol output directory. If not provided <build_dir>/output one is used.
+# MQTT5_TEST_OUTPUT_DIR - Path to test output directory. If not provided <build_dir>/output_tools one is used.
+# MQTT5_TOOLS_OUTPUT_DIR - Path to tools output directory. If not provided <build_dir>/output_tools one is used.
 # COMMSDSL2COMMS_EXTRA_ARGS - Extra arguments to pass to "commsdsl2comms"
-# COMMS_INSTALL_DIR - Directory where external COMMS library installed. If not specified
-#    it will be checked out automatically.
-# COMMSDSL_TAG - Tag of the commsdsl project to checkout if COMMSDSL2COMMS
-#     is not provided.
-# COMMS_TAG - Tag of the COMMS library to checkout if COMMS_INSTALL_DIR
-#     is not provided and examples are not disabled.
-# COMMSDSL_C_COMPILER - "C" Compiler for commsdsl project
-# COMMSDSL_CXX_COMPILER - "C++" Compiler for commsdsl project
+# COMMSDSL2TEST_EXTRA_ARGS - Extra arguments to pass to "commsdsl2test"
+# COMMSDSL2TOOLS_QT_EXTRA_ARGS - Extra arguments to pass to "commsdsl2tools_qt"
 
-if ("${COMMSDSL_TAG}" STREQUAL "")
-    set(COMMSDSL_TAG "v4.0")
-endif ()
-
-if ("${COMMS_TAG}" STREQUAL "")
-    set(COMMS_TAG "v4.0")
-endif ()
-
-set (VERSION "1.0.1")
+set (VERSION "1.1.0")
 
 set (EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
 
-set (COMMSDSL_TGT "commsdsl_tgt")
-if ("${COMMSDSL_INSTALL_DIR}" STREQUAL "")
-        execute_process (
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${EXTERNALS_DIR}"
-        )   
-        
-        include(ExternalProject)
-        set (commsdsl2comms_main_dir "${PROJECT_BINARY_DIR}/commsdsl")
-        set (commsdsl2comms_src_dir "${EXTERNALS_DIR}/commsdsl")
-        set (commsdsl2comms_bin_dir "${commsdsl2comms_main_dir}/build")
-        set (commsdsl2comms_install_dir "${commsdsl2comms_main_dir}/install")
+find_program(COMMSDSL2COMMS commsdsl2comms PATH_SUFFIXES bin REQUIRED)        
+find_program(COMMSDSL2TEST commsdsl2test PATH_SUFFIXES bin REQUIRED)        
+find_program(COMMSDSL2TOOLS_QT commsdsl2tools_qt PATH_SUFFIXES bin REQUIRED)      
 
-        if ("${COMMSDSL_C_COMPILER}" STREQUAL "")
-            set (COMMSDSL_C_COMPILER ${CMAKE_C_COMPILER})
-        endif ()        
-
-        if ("${COMMSDSL_CXX_COMPILER}" STREQUAL "")
-            set (COMMSDSL_CXX_COMPILER ${CMAKE_CXX_COMPILER})
-        endif ()        
-        
-        ExternalProject_Add(
-            "${COMMSDSL_TGT}"
-            PREFIX "${commsdsl2comms_bin_dir}"
-            STAMP_DIR "${commsdsl2comms_bin_dir}"
-            GIT_REPOSITORY "https://github.com/commschamp/commsdsl.git"
-            GIT_TAG "${COMMSDSL_TAG}"
-            SOURCE_DIR "${commsdsl2comms_src_dir}"
-            CMAKE_ARGS
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${commsdsl2comms_install_dir}
-                -DCOMMSDSL_BUILD_UNIT_TESTS=OFF -DCMAKE_C_COMPILER=${COMMSDSL_C_COMPILER} 
-                -DCMAKE_CXX_COMPILER=${COMMSDSL_CXX_COMPILER} 
-                -DCOMMSDSL_EXTERNALS_DIR=${EXTERNALS_DIR} 
-            BINARY_DIR "${commsdsl2comms_bin_dir}"
-        )
-        
-        set (COMMSDSL2COMMS "${commsdsl2comms_install_dir}/bin/commsdsl2comms")
-        set (COMMSDSL2TEST "${commsdsl2comms_install_dir}/bin/commsdsl2test")
-        set (COMMSDSL2TOOLS_QT "${commsdsl2comms_install_dir}/bin/commsdsl2tools_qt")
-else ()
-    find_program(COMMSDSL2COMMS commsdsl2comms PATHS ${COMMSDSL_INSTALL_DIR} REQUIRED)        
-    find_program(COMMSDSL2TEST commsdsl2test PATHS ${COMMSDSL_INSTALL_DIR} REQUIRED)        
-    find_program(COMMSDSL2TOOLS_QT commsdsl2tools_qt PATHS ${COMMSDSL_INSTALL_DIR} REQUIRED)        
-endif ()
+set (PROT_OUTPUT_TGT "${PROJECT_NAME}_prot_output_tgt")
 
 set (schema_file "${CMAKE_SOURCE_DIR}/dsl/schema.xml")
 set (prot_tmp_dir "${CMAKE_BINARY_DIR}/output.tmp")
@@ -81,28 +33,16 @@ set (test_tmp_dir "${CMAKE_BINARY_DIR}/output_test.tmp")
 set (tools_tmp_dir "${CMAKE_BINARY_DIR}/output_tools.tmp")
 set (code_input_dir "${CMAKE_SOURCE_DIR}/src")
 
-if ("${PROT_OUTPUT_DIR}" STREQUAL "")
-    set (PROT_OUTPUT_DIR "${CMAKE_BINARY_DIR}/output")
+if ("${MQTT5_PROT_OUTPUT_DIR}" STREQUAL "")
+    set (MQTT5_PROT_OUTPUT_DIR "${CMAKE_BINARY_DIR}/output")
 endif ()
 
-if ("${TEST_OUTPUT_DIR}" STREQUAL "")
-    set (TEST_OUTPUT_DIR "${CMAKE_BINARY_DIR}/output_test")
+if ("${MQTT5_TEST_OUTPUT_DIR}" STREQUAL "")
+    set (MQTT5_TEST_OUTPUT_DIR "${CMAKE_BINARY_DIR}/output_test")
 endif ()
 
-if ("${TOOLS_OUTPUT_DIR}" STREQUAL "")
-    set (TOOLS_OUTPUT_DIR "${CMAKE_BINARY_DIR}/output_tools")
-endif ()
-
-set (code_input_param)
-if (EXISTS "${code_input_dir}/")
-    set (code_input_param -c ${code_input_dir})
-endif()
-
-file (GLOB_RECURSE src_files ${code_input_dir})
-
-set (extra_dep)
-if (TARGET ${COMMSDSL_TGT})
-    set (extra_dep ${COMMSDSL_TGT})
+if ("${MQTT5_TOOLS_OUTPUT_DIR}" STREQUAL "")
+    set (MQTT5_TOOLS_OUTPUT_DIR "${CMAKE_BINARY_DIR}/output_tools")
 endif ()
 
 set (warn_as_error "--warn-as-err")
@@ -116,25 +56,30 @@ add_custom_target(rm_tmp_tgt
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${tools_tmp_dir}
 )
 
+set (code_input_param)
+if (EXISTS ${PROJECT_SOURCE_DIR}/src)
+set (code_input_param -c ${PROJECT_SOURCE_DIR}/src)
+endif ()
+
 add_custom_command(
     OUTPUT ${prot_tmp_dir}
-    DEPENDS ${schema_file} ${src_files} ${extra_dep} rm_tmp_tgt
-    COMMAND ${COMMSDSL2COMMS} ${warn_as_error} -V ${VERSION}
-        --comms-tag ${COMMS_TAG} -o ${prot_tmp_dir} 
-        ${COMMSDSL2COMMS_EXTRA_ARGS} ${code_input_param}  ${schema_file}
+    DEPENDS ${schema_file} ${src_files} rm_tmp_tgt
+    COMMAND ${COMMSDSL2COMMS} ${warn_as_error} -V ${VERSION} ${code_input_param}
+        -o ${prot_tmp_dir} 
+        ${COMMSDSL2COMMS_EXTRA_ARGS}  ${schema_file}
 )
 
 add_custom_command(
     OUTPUT ${test_tmp_dir}
-    DEPENDS ${schema_file} ${src_files} ${extra_dep} rm_tmp_tgt
-    COMMAND ${COMMSDSL2TEST} ${warn_as_error}
+    DEPENDS ${schema_file} ${src_files} rm_tmp_tgt
+    COMMAND ${COMMSDSL2TEST} ${warn_as_error} ${COMMSDSL2TEST_EXTRA_ARGS}
         -o ${test_tmp_dir} ${schema_file}
 )
 
 add_custom_command(
     OUTPUT ${tools_tmp_dir}
-    DEPENDS ${schema_file} ${src_files} ${extra_dep} rm_tmp_tgt
-    COMMAND ${COMMSDSL2TOOLS_QT} ${warn_as_error}
+    DEPENDS ${schema_file} ${src_files} rm_tmp_tgt
+    COMMAND ${COMMSDSL2TOOLS_QT} ${warn_as_error} ${COMMSDSL2TOOLS_QT_EXTRA_ARGS}
         -o ${tools_tmp_dir} ${schema_file}
 )
 
@@ -145,17 +90,113 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/readme.generated ${readme_file}
 )
 
-set (prot_output_tgt ${name}_prot_output_tgt)
-add_custom_target(${PROJECT_NAME} ALL
+add_custom_target(${PROT_OUTPUT_TGT} ALL
     COMMAND ${CMAKE_COMMAND}
-        -DGENERATED="${prot_tmp_dir}" -DOUTPUT="${PROT_OUTPUT_DIR}"
+        -DGENERATED="${prot_tmp_dir}" -DOUTPUT="${MQTT5_PROT_OUTPUT_DIR}"
         -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"
     COMMAND ${CMAKE_COMMAND}
-        -DGENERATED="${test_tmp_dir}" -DOUTPUT="${TEST_OUTPUT_DIR}"
+        -DGENERATED="${test_tmp_dir}" -DOUTPUT="${MQTT5_TEST_OUTPUT_DIR}"
         -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"        
     COMMAND ${CMAKE_COMMAND}
-        -DGENERATED="${tools_tmp_dir}" -DOUTPUT="${TOOLS_OUTPUT_DIR}"
+        -DGENERATED="${tools_tmp_dir}" -DOUTPUT="${MQTT5_TOOLS_OUTPUT_DIR}"
         -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"        
     DEPENDS ${prot_tmp_dir} ${test_tmp_dir} ${tools_tmp_dir} ${readme_file} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
 
+include (ExternalProject)
+if (MQTT5_BUILD_GEN_PROTOCOL)
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${MQTT5_PROT_OUTPUT_DIR}
+    )  
+
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E touch ${MQTT5_PROT_OUTPUT_DIR}/dummy.txt
+    )
+
+    set (prot_build_dir ${CMAKE_CURRENT_BINARY_DIR}/prot_tgt_build)
+    ExternalProject_Add(
+        "prot_tgt"
+        BUILD_ALWAYS TRUE
+        DEPENDS ${PROT_OUTPUT_TGT}
+        SOURCE_DIR ${MQTT5_PROT_OUTPUT_DIR}
+        BINARY_DIR ${prot_build_dir}
+        INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+        CMAKE_GENERATOR ${CMAKE_GENERATOR}
+        CMAKE_ARGS
+            -DOPT_REQUIRE_COMMS_LIB=OFF
+            -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    )
+
+    find_package(Doxygen)
+    if (MQTT5_BUILD_GEN_DOC AND DOXYGEN_FOUND)
+        ExternalProject_Add_Step(
+            "prot_tgt" 
+            "doc"
+            COMMAND ${CMAKE_COMMAND} --build ${prot_build_dir} --target doc_mqtt5
+            DEPENDEES "build"
+            DEPENDERS "install"
+        )
+    endif ()
+endif ()  
+
+set (combined_prefix_path ${CMAKE_INSTALL_PREFIX} ${CMAKE_PREFIX_PATH})
+string (REPLACE ";" "|" combined_prefix_path_str "${combined_prefix_path}")
+
+if (MQTT5_BUILD_GEN_TEST)
+    if (NOT MQTT5_BUILD_GEN_PROTOCOL)
+        message (FATAL_ERROR "MQTT5_BUILD_GEN_PROTOCOL is required for MQTT5_BUILD_GEN_TEST")
+    endif ()
+
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${MQTT5_TEST_OUTPUT_DIR}
+    )
+
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E touch ${MQTT5_TEST_OUTPUT_DIR}/dummy.txt
+    )
+
+    set (test_build_dir ${CMAKE_CURRENT_BINARY_DIR}/test_tgt_build)
+    ExternalProject_Add(
+        "test_tgt"
+        BUILD_ALWAYS TRUE
+        DEPENDS "prot_tgt"
+        SOURCE_DIR ${MQTT5_TEST_OUTPUT_DIR}
+        BINARY_DIR ${test_build_dir}
+        INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+        CMAKE_GENERATOR ${CMAKE_GENERATOR}
+        LIST_SEPARATOR |
+        CMAKE_ARGS
+            -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+            -DCMAKE_PREFIX_PATH=${combined_prefix_path_str}
+    )   
+endif ()
+
+
+if (MQTT5_BUILD_GEN_TOOLS)
+    if (NOT MQTT5_BUILD_GEN_PROTOCOL)
+        message (FATAL_ERROR "MQTT5_BUILD_GEN_PROTOCOL is required for MQTT5_BUILD_GEN_TOOLS")
+    endif ()
+
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${MQTT5_TOOLS_OUTPUT_DIR}
+    )    
+
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E touch ${MQTT5_TOOLS_OUTPUT_DIR}/dummy.txt
+    )
+
+    set (tools_build_dir ${CMAKE_CURRENT_BINARY_DIR}/tools_tgt_build)
+    ExternalProject_Add(
+        "tools_tgt"
+        BUILD_ALWAYS TRUE
+        DEPENDS "prot_tgt"
+        SOURCE_DIR ${MQTT5_TOOLS_OUTPUT_DIR}
+        BINARY_DIR ${tools_build_dir}
+        INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+        CMAKE_GENERATOR ${CMAKE_GENERATOR}
+        LIST_SEPARATOR |
+        CMAKE_ARGS
+            -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+            -DCMAKE_PREFIX_PATH=${combined_prefix_path_str}
+    )   
+endif ()
 
