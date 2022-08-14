@@ -326,11 +326,11 @@
         <ref field="PropertiesList" />
     </message> 
     
-    <message name="Pubrec" id="MsgId.Pubrec" displayName="^PubrecName" copyFieldsFrom="Puback" validOverride="extend" />
+    <message name="Pubrec" id="MsgId.Pubrec" displayName="^PubrecName" copyFieldsFrom="Puback" copyCodeFrom="Puback" />
     
-    <message name="Pubrel" id="MsgId.Pubrel" displayName="^PubrelName" copyFieldsFrom="Puback" validOverride="extend" />
+    <message name="Pubrel" id="MsgId.Pubrel" displayName="^PubrelName" copyFieldsFrom="Puback" copyCodeFrom="Puback" />
     
-    <message name="Pubcomp" id="MsgId.Pubcomp" displayName="^PubcompName" copyFieldsFrom="Puback" validOverride="extend" />        
+    <message name="Pubcomp" id="MsgId.Pubcomp" displayName="^PubcompName" copyFieldsFrom="Puback" copyCodeFrom="Puback" />        
     
     <message name="Subscribe" id="MsgId.Subscribe" displayName="^SubscribeName" validOverride="extend" sender="client">
         <ref field="PacketId" />
