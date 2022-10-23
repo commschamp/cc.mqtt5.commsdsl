@@ -131,7 +131,7 @@ if (MQTT5_BUILD_GEN_PROTOCOL)
         ExternalProject_Add_Step(
             "prot_tgt" 
             "doc"
-            COMMAND ${CMAKE_COMMAND} --build ${prot_build_dir} --target doc_mqtt5
+            COMMAND ${CMAKE_COMMAND} --build ${prot_build_dir} --target doc_cc_mqtt5
             DEPENDEES "build"
             DEPENDERS "install"
         )

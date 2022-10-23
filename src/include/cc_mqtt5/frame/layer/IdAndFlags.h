@@ -12,7 +12,7 @@
 #include "comms/cast.h"
 
 
-namespace mqtt5
+namespace cc_mqtt5
 {
 
 namespace frame
@@ -97,6 +97,6 @@ public:
 
 } // namespace frame
 
-} // namespace mqtt5
+} // namespace cc_mqtt5
 
 
