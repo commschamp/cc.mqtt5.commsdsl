@@ -18,7 +18,7 @@ ${SCRIPT_DIR}/prepare_externals.sh
 cd ${BUILD_DIR}
 cmake .. -DCMAKE_INSTALL_PREFIX=${COMMON_INSTALL_DIR} \
     -DCMAKE_BUILD_TYPE=Debug -DMQTT5_BUILD_GEN_TEST=ON \
-    -DMQTT5_BUILD_GEN_TOOLS=ON "$@"
+    -DMQTT5_BUILD_GEN_TOOLS=ON -DMQTT5_BUILD_GEN_SWIG=ON "$@"
 
 procs=$(nproc)
 if [ -n "${procs}" ]; then
