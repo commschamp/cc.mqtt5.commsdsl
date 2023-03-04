@@ -1,17 +1,7 @@
 /// @brief Custom validity check
 bool doValid() const
 {
-    if (!Base::doValid()) {
-        return false;
-    }
-    
-    auto& qosField = Base::transportField_flags().field_qos();
-    using QosFieldType = typename std::decay<decltype(qosField)>::type;
-    using QosValueType = typename QosFieldType::ValueType;
-    
-    if ((Base::transportField_flags().field_retain().value() != 0U) ||
-        (qosField.value() != QosValueType::AtLeastOnceDelivery) ||
-        (Base::transportField_flags().field_dup().value() != 0U)) {
+    if (!doValidOrig()) {
         return false;
     }
     
