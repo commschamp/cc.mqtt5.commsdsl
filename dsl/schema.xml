@@ -368,7 +368,7 @@
         <validCond>
             <and>
                 <validCond value="%Flags.Retain = 0" />
-                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
+                <validCond value="%Flags.Qos = Qos.AtLeastOnceDelivery" />
                 <validCond value="%Flags.Dup = 0" />
             </and>
         </validCond>   
