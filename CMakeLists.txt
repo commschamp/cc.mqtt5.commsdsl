@@ -223,7 +223,7 @@ if (MQTT5_GEN_TOOLS)
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${tools_tmp_dir}" -DOUTPUT="${MQTT5_TOOLS_OUTPUT_DIR}"
             -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"        
-        DEPENDS ${tools_tmp_dir} ${readme_file} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
+        DEPENDS ${tools_tmp_dir} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
 
     if (MQTT5_BUILD_TOOLS)
         if ((NOT MQTT5_GEN_PROTOCOL) OR (NOT MQTT5_BUILD_PROTOCOL))
@@ -277,7 +277,7 @@ if (MQTT5_GEN_SWIG)
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${swig_tmp_dir}" -DOUTPUT="${MQTT5_SWIG_OUTPUT_DIR}"
             -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"        
-        DEPENDS ${swig_tmp_dir} ${readme_file} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
+        DEPENDS ${swig_tmp_dir} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
 
     if (MQTT5_BUILD_SWIG)
         if ((NOT MQTT5_GEN_PROTOCOL) OR (NOT MQTT5_BUILD_PROTOCOL))
@@ -337,7 +337,7 @@ if (MQTT5_GEN_EMSCRIPTEN)
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${emscripten_tmp_dir}" -DOUTPUT="${MQTT5_EMSCRIPTEN_OUTPUT_DIR}"
             -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"        
-        DEPENDS ${emscripten_tmp_dir} ${readme_file} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
+        DEPENDS ${emscripten_tmp_dir} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
 
     if (MQTT5_BUILD_EMSCRIPTEN)
         if ((NOT MQTT5_GEN_PROTOCOL) OR (NOT MQTT5_BUILD_PROTOCOL))
