@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="cc_mqtt5" endian="big" dslVersion="5">
+<schema name="cc_mqtt5" endian="big" dslVersion="6">
     <fields>
         <string name="ConnectName" defaultValue="CONNECT" />
         <string name="ConnackName" defaultValue="CONNACK" />
@@ -254,138 +254,262 @@
     </frame>       
     
     <message name="Connect" id="MsgId.Connect" displayName="^ConnectName" validOverride="extend" sender="client">
-        <ref field="ProtocolName" />
-        <int name="ProtocolVersion" type="uint8" defaultValidValue="5" failOnInvalid="true" displayName="Protocol Version"/>
-        <bitfield name="Flags" displayName="Connect Flags">
-            <set name="Low" bitLength="3" displayName="_">
-                <bit name="cleanStart" idx="1" displayName="Clean Start" />
-                <bit name="willFlag" idx="2" displayName="Will Flag" />
-            </set>
-            <ref field="Qos" name="WillQos" displayName="Will QoS" bitLength="2" />
-            <set name="High" bitLength="3" displayName="_">
-                <bit name="willRetain" idx="0" displayName="Will Retain" />
-                <bit name="passwordFlag" idx="1" displayName="Password Flag" />
-                <bit name="userNameFlag" idx="2" displayName="User Name Flag" />
-            </set>
-        </bitfield>
-        <int name="KeepAlive" type="uint16" displayName="Keep Alive" />
-        <ref field="PropertiesList" name="Properties" />
-        <ref name="ClientId" field="String" displayName="Client ID" />
-        <optional name="WillProperties" defaultMode="missing" displayExtModeCtrl="true" displayName="Will Properties">
-            <cond value="$Flags.Low.willFlag" />
-            <field>
-                <ref field="PropertiesList" name="Properties"  displayName="Will Properties" />
-            </field>
-        </optional>
-        <optional name="WillTopic" displayName="Will Topic" defaultMode="missing" displayExtModeCtrl="true">
-            <cond value="$Flags.Low.willFlag" />
-            <field>
-                <ref name="WillTopic" field="String" displayName="Will Topic" />           
-            </field>
-        </optional>
-        <optional name="WillMessage" displayName="Will Message" defaultMode="missing" displayExtModeCtrl="true">
-            <cond value="$Flags.Low.willFlag" />
-            <field>
-                <ref name="WillMessage" field="BinData" displayName="Will Message" />           
-            </field>
-        </optional>        
-        <optional name="UserName" displayName="User Name" defaultMode="missing" displayExtModeCtrl="true">
-            <cond value="$Flags.High.userNameFlag" />
-            <field>
-                <ref name="UserName" field="String" displayName="User Name" />           
-            </field>
-        </optional>        
-        <optional name="Password" defaultMode="missing" displayExtModeCtrl="true">
-            <cond value="$Flags.High.passwordFlag" />
-            <field>
-                <ref name="Password" field="BinData" />           
-            </field>
-        </optional>        
+        <fields>
+            <ref field="ProtocolName" />
+            <int name="ProtocolVersion" type="uint8" defaultValidValue="5" failOnInvalid="true" displayName="Protocol Version"/>
+            <bitfield name="Flags" displayName="Connect Flags">
+                <set name="Low" bitLength="3" displayName="_">
+                    <bit name="cleanStart" idx="1" displayName="Clean Start" />
+                    <bit name="willFlag" idx="2" displayName="Will Flag" />
+                </set>
+                <ref field="Qos" name="WillQos" displayName="Will QoS" bitLength="2" />
+                <set name="High" bitLength="3" displayName="_">
+                    <bit name="willRetain" idx="0" displayName="Will Retain" />
+                    <bit name="passwordFlag" idx="1" displayName="Password Flag" />
+                    <bit name="userNameFlag" idx="2" displayName="User Name Flag" />
+                </set>
+            </bitfield>
+            <int name="KeepAlive" type="uint16" displayName="Keep Alive" />
+            <ref field="PropertiesList" name="Properties" />
+            <ref name="ClientId" field="String" displayName="Client ID" />
+            <optional name="WillProperties" defaultMode="missing" displayExtModeCtrl="true" displayName="Will Properties">
+                <cond value="$Flags.Low.willFlag" />
+                <field>
+                    <ref field="PropertiesList" name="Properties"  displayName="Will Properties" />
+                </field>
+            </optional>
+            <optional name="WillTopic" displayName="Will Topic" defaultMode="missing" displayExtModeCtrl="true">
+                <cond value="$Flags.Low.willFlag" />
+                <field>
+                    <ref name="WillTopic" field="String" displayName="Will Topic" />           
+                </field>
+            </optional>
+            <optional name="WillMessage" displayName="Will Message" defaultMode="missing" displayExtModeCtrl="true">
+                <cond value="$Flags.Low.willFlag" />
+                <field>
+                    <ref name="WillMessage" field="BinData" displayName="Will Message" />           
+                </field>
+            </optional>        
+            <optional name="UserName" displayName="User Name" defaultMode="missing" displayExtModeCtrl="true">
+                <cond value="$Flags.High.userNameFlag" />
+                <field>
+                    <ref name="UserName" field="String" displayName="User Name" />           
+                </field>
+            </optional>        
+            <optional name="Password" defaultMode="missing" displayExtModeCtrl="true">
+                <cond value="$Flags.High.passwordFlag" />
+                <field>
+                    <ref name="Password" field="BinData" />           
+                </field>
+            </optional>        
+        </fields>
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond>  
     </message>
     
-    <message name="Connack" id="MsgId.Connack" displayName="^ConnackName" validOverride="extend" sender="server">
-        <set name="Flags" type="uint8" >
-            <bit name="sp" idx="0" displayName="Session Present" />
-        </set>  
-        <ref field="ReasonCode" />  
-        <ref field="PropertiesList" />
+    <message name="Connack" id="MsgId.Connack" displayName="^ConnackName" sender="server">
+        <fields>
+            <set name="Flags" type="uint8" >
+                <bit name="sp" idx="0" displayName="Session Present" />
+            </set>  
+            <ref field="ReasonCode" />  
+            <ref field="PropertiesList" />
+        </fields>
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond>
     </message>    
     
-    <message name="Publish" id="MsgId.Publish" displayName="^PublishName" readOverride="replace" refreshOverride="replace">
+    <message name="Publish" id="MsgId.Publish" displayName="^PublishName">
         <ref field="Topic" />
         <optional name="PacketId" displayName="Packet ID" defaultMode="missing" displayExtModeCtrl="true">
+            <cond value="%Flags.Qos &gt; Qos.AtMostOnceDelivery" />
             <field value="PacketId" />
         </optional>
         <ref field="PropertiesList" />
         <data name="Payload" />
     </message>  
     
-    <message name="Puback" id="MsgId.Puback" displayName="^PubackName" validOverride="extend">
-        <ref field="PacketId" />
-        <ref field="ReasonCode" />  
-        <ref field="PropertiesList" />
+    <message name="Puback" id="MsgId.Puback" displayName="^PubackName">
+        <fields>
+            <ref field="PacketId" />
+            <ref field="ReasonCode" />  
+            <ref field="PropertiesList" />
+        </fields>
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond>  
     </message> 
     
-    <message name="Pubrec" id="MsgId.Pubrec" displayName="^PubrecName" copyFieldsFrom="Puback" copyCodeFrom="Puback" />
-    
-    <message name="Pubrel" id="MsgId.Pubrel" displayName="^PubrelName" copyFieldsFrom="Puback" copyCodeFrom="Puback" />
-    
-    <message name="Pubcomp" id="MsgId.Pubcomp" displayName="^PubcompName" copyFieldsFrom="Puback" copyCodeFrom="Puback" />        
-    
-    <message name="Subscribe" id="MsgId.Subscribe" displayName="^SubscribeName" validOverride="extend" sender="client">
-        <ref field="PacketId" />
-        <ref field="PropertiesList" />
-        <list name="List">
-            <element>
-                <bundle name="Element" displayName="_">
-                    <ref field="Topic" />
-                    <bitfield name="Options">
-                        <ref field="Qos" bitLength="2" />
-                        <set name="Bits" bitLength="2" displayName="_">
-                            <bit name="NL" idx="0" />
-                            <bit name="RAP" idx="1" />
-                        </set>
-                        <enum name="RetainHandling" type="uint8" bitLength="2" displayName="Retain Handling">
-                            <validValue name="Send" val="0" />
-                            <validValue name="SendIfNotExists" val="1" />
-                            <validValue name="DontSend" val="2" />
-                        </enum>
-                        <int name="Reserved" type="uint8" validValue="0" bitLength="2" displayHidden="true" />
-                    </bitfield>
-                </bundle>
-            </element>
-        </list>
+    <message name="Pubrec" id="MsgId.Pubrec" displayName="^PubrecName" copyFieldsFrom="Puback" copyCodeFrom="Puback">
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond>   
     </message>
     
-    <message name="Suback" id="MsgId.Suback" displayName="^SubackName" sender="server">
-        <ref field="PacketId" />
-        <ref field="PropertiesList" />
-        <list name="List" element="ReasonCode" />
+    <message name="Pubrel" id="MsgId.Pubrel" displayName="^PubrelName" copyFieldsFrom="Puback" copyCodeFrom="Puback">
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtLeastOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond>   
+    </message>
+    
+    <message name="Pubcomp" id="MsgId.Pubcomp" displayName="^PubcompName" copyFieldsFrom="Puback" copyCodeFrom="Puback">        
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond>       
+    </message>
+    
+    <message name="Subscribe" id="MsgId.Subscribe" displayName="^SubscribeName" validOverride="extend" sender="client">
+        <construct value="%Flags.Qos = Qos.AtLeastOnceDelivery" />    
+        <fields>
+            <ref field="PacketId" />
+            <ref field="PropertiesList" />
+            <list name="List">
+                <element>
+                    <bundle name="Element" displayName="_">
+                        <ref field="Topic" />
+                        <bitfield name="Options">
+                            <ref field="Qos" bitLength="2" />
+                            <set name="Bits" bitLength="2" displayName="_">
+                                <bit name="NL" idx="0" />
+                                <bit name="RAP" idx="1" />
+                            </set>
+                            <enum name="RetainHandling" type="uint8" bitLength="2" displayName="Retain Handling">
+                                <validValue name="Send" val="0" />
+                                <validValue name="SendIfNotExists" val="1" />
+                                <validValue name="DontSend" val="2" />
+                            </enum>
+                            <int name="Reserved" type="uint8" validValue="0" bitLength="2" displayHidden="true" />
+                        </bitfield>
+                    </bundle>
+                </element>
+            </list>
+        </fields>
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtLeastOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond> 
+    </message>
+    
+    <message name="Suback" id="MsgId.Suback" displayName="^SubackName" validOverride="extend" sender="server">
+        <fields>
+            <ref field="PacketId" />
+            <ref field="PropertiesList" />
+            <list name="List" element="ReasonCode" />
+        </fields>
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond>           
     </message>    
     
-    <message name="Unsubscribe" id="MsgId.Unsubscribe" displayName="^UnsubscribeName" sender="client">
-        <ref field="PacketId" />
-        <ref field="PropertiesList" />
-        <list name="List" element="Topic" />
+    <message name="Unsubscribe" id="MsgId.Unsubscribe" displayName="^UnsubscribeName" validOverride="extend" sender="client">
+        <construct value="%Flags.Qos = Qos.AtLeastOnceDelivery" />
+        <fields>
+            <ref field="PacketId" />
+            <ref field="PropertiesList" />
+            <list name="List" element="Topic" />
+        </fields>
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtLeastOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond>          
     </message>    
     
     <message name="Unsuback" id="MsgId.Unsuback" displayName="^UnsubackName" sender="server">
-        <ref field="PacketId" />
-        <ref field="PropertiesList" />
-        <list name="List" element="ReasonCode" />
+        <fields>
+            <ref field="PacketId" />
+            <ref field="PropertiesList" />
+            <list name="List" element="ReasonCode" />
+        </fields>
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond>            
     </message>      
     
-    <message name="Pingreq" id="MsgId.Pingreq" displayName="^PingreqName" validOverride="extend" sender="client"/>  
+    <message name="Pingreq" id="MsgId.Pingreq" displayName="^PingreqName" sender="client">  
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond>   
+    </message>
     
-    <message name="Pingresp" id="MsgId.Pingresp" displayName="^PingrespName" validOverride="extend"  sender="server"/>
+    <message name="Pingresp" id="MsgId.Pingresp" displayName="^PingrespName" sender="server">
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond>       
+    </message>
     
     <message name="Disconnect" id="MsgId.Disconnect" displayName="^DisconnectName">
-        <ref field="ReasonCode" />
-        <ref field="PropertiesList" />
+        <fields>
+            <ref field="ReasonCode" />
+            <ref field="PropertiesList" />
+        </fields>
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond> 
     </message>
 
     <message name="Auth" id="MsgId.Auth" displayName="^AuthName">
-        <ref field="ReasonCode" />
-        <ref field="PropertiesList" />
+        <fields>
+            <ref field="ReasonCode" />
+            <ref field="PropertiesList" />
+        </fields>
+        <validCond>
+            <and>
+                <validCond value="%Flags.Retain = 0" />
+                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
+                <validCond value="%Flags.Dup = 0" />
+            </and>
+        </validCond>         
     </message>
 </schema>

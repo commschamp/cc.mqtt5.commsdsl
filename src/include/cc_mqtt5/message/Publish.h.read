@@ -1,7 +1,0 @@
-/// @brief Custom read functionality
-template <typename TIter>
-comms::ErrorStatus doRead(TIter& iter, std::size_t len)
-{
-    refresh_packetId(); // make sure the mode of "packet ID" is correct
-    return Base::doRead(iter, len);
-}
