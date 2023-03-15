@@ -365,6 +365,7 @@
     </message>
     
     <message name="Pubrel" id="MsgId.Pubrel" displayName="^PubrelName" copyFieldsFrom="Puback" copyCodeFrom="Puback">
+        <construct value="%Flags.Qos = Qos.AtLeastOnceDelivery" />
         <validCond>
             <and>
                 <validCond value="%Flags.Retain = 0" />
