@@ -1,9 +1,0 @@
-/// @brief Custom validity check
-bool doValid() const
-{
-    if (!doValidOrig()) {
-        return false;
-    }
-    
-    return !field_list().value().empty();
-}
