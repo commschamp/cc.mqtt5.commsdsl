@@ -496,8 +496,8 @@
     
     <message name="Disconnect" id="MsgId.Disconnect" displayName="^DisconnectName">
         <fields>
-            <ref field="ReasonCode" />
-            <ref field="PropertiesList" />
+            <optional name="ReasonCode" field="ReasonCode" displayName="Reason Code" />
+            <optional name="PropertiesList" field="PropertiesList" displayName="Properties" />
         </fields>
         <validCond>
             <and>
