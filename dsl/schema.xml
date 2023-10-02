@@ -82,7 +82,9 @@
             </bundle>        
             <bundle name="SessionExpiryInterval" displayName="Session Expiry Interval">
                 <int reuse="PropertyId" name="Id" defaultValidValue="17" />
-                <int name="Value" type="uint32" units="seconds" />
+                <int name="Value" type="uint32" units="seconds">
+                    <special name="Infinite" val="0xffffffff" />
+                </int>
             </bundle>        
             <bundle name="AssignedClientId" displayName="Assigned Client ID">
                 <int reuse="PropertyId" name="Id" defaultValidValue="18" />
@@ -132,7 +134,7 @@
                 <int reuse="PropertyId" name="Id" defaultValidValue="34" />
                 <int name="Value" type="uint16" />
             </bundle>
-            <bundle name="TopicAlias" displayName="Topic Alias Maximum">
+            <bundle name="TopicAlias" displayName="Topic Alias">
                 <int reuse="PropertyId" name="Id" defaultValidValue="35" />
                 <int name="Value" type="uint16" />
             </bundle>            
@@ -269,7 +271,7 @@
                     <bit name="userNameFlag" idx="2" displayName="User Name Flag" />
                 </set>
             </bitfield>
-            <int name="KeepAlive" type="uint16" displayName="Keep Alive" />
+            <int name="KeepAlive" type="uint16" displayName="Keep Alive" units="seconds" />
             <ref field="PropertiesList" name="Properties" />
             <ref name="ClientId" field="String" displayName="Client ID" />
             <optional name="WillProperties" defaultMode="missing" displayExtModeCtrl="true" displayName="Will Properties">
