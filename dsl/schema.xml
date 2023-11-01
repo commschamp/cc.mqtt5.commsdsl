@@ -310,11 +310,6 @@
                 <validCond value="%Flags.Retain = 0" />
                 <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
                 <validCond value="%Flags.Dup = 0" />
-                <or>
-                    <!-- If password is present, username must be present also -->
-                    <validCond value="!$Flags.High.passwordFlag" />
-                    <validCond value="$Flags.High.userNameFlag" />
-                </or>                
             </and>
         </validCond>  
     </message>
