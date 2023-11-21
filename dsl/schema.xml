@@ -82,7 +82,9 @@
             </bundle>        
             <bundle name="SessionExpiryInterval" displayName="Session Expiry Interval">
                 <int reuse="PropertyId" name="Id" defaultValidValue="17" />
-                <int name="Value" type="uint32" units="seconds" />
+                <int name="Value" type="uint32" units="seconds">
+                    <special name="Infinite" val="0xffffffff" />
+                </int>
             </bundle>        
             <bundle name="AssignedClientId" displayName="Assigned Client ID">
                 <int reuse="PropertyId" name="Id" defaultValidValue="18" />
@@ -132,7 +134,7 @@
                 <int reuse="PropertyId" name="Id" defaultValidValue="34" />
                 <int name="Value" type="uint16" />
             </bundle>
-            <bundle name="TopicAlias" displayName="Topic Alias Maximum">
+            <bundle name="TopicAlias" displayName="Topic Alias">
                 <int reuse="PropertyId" name="Id" defaultValidValue="35" />
                 <int name="Value" type="uint16" />
             </bundle>            
@@ -269,13 +271,13 @@
                     <bit name="userNameFlag" idx="2" displayName="User Name Flag" />
                 </set>
             </bitfield>
-            <int name="KeepAlive" type="uint16" displayName="Keep Alive" />
+            <int name="KeepAlive" type="uint16" displayName="Keep Alive" units="seconds" />
             <ref field="PropertiesList" name="Properties" />
             <ref name="ClientId" field="String" displayName="Client ID" />
             <optional name="WillProperties" defaultMode="missing" displayExtModeCtrl="true" displayName="Will Properties">
                 <cond value="$Flags.Low.willFlag" />
                 <field>
-                    <ref field="PropertiesList" name="Properties"  displayName="Will Properties" />
+                    <ref field="PropertiesList" name="ActWillProperties"  displayName="Will Properties" />
                 </field>
             </optional>
             <optional name="WillTopic" displayName="Will Topic" defaultMode="missing" displayExtModeCtrl="true">
@@ -308,11 +310,6 @@
                 <validCond value="%Flags.Retain = 0" />
                 <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
                 <validCond value="%Flags.Dup = 0" />
-                <or>
-                    <!-- If password is present, username must be present also -->
-                    <validCond value="!$Flags.High.passwordFlag" />
-                    <validCond value="$Flags.High.userNameFlag" />
-                </or>                
             </and>
         </validCond>  
     </message>
@@ -323,7 +320,7 @@
                 <bit name="sp" idx="0" displayName="Session Present" />
             </set>  
             <ref field="ReasonCode" />  
-            <ref field="PropertiesList" />
+            <ref name="Properties" field="PropertiesList" />
         </fields>
         <validCond>
             <and>
@@ -340,15 +337,15 @@
             <cond value="%Flags.Qos &gt; Qos.AtMostOnceDelivery" />
             <field value="PacketId" />
         </optional>
-        <ref field="PropertiesList" />
+        <ref name="Properties" field="PropertiesList" />
         <data name="Payload" />
     </message>  
     
     <message name="Puback" id="MsgId.Puback" displayName="^PubackName">
         <fields>
             <ref field="PacketId" />
-            <ref field="ReasonCode" />  
-            <ref field="PropertiesList" />
+            <optional name="ReasonCode" field="ReasonCode" displayName="Reason Code" />
+            <optional name="Properties" field="PropertiesList" />
         </fields>
         <validCond>
             <and>
@@ -394,7 +391,7 @@
         <construct value="%Flags.Qos = Qos.AtLeastOnceDelivery" />    
         <fields>
             <ref field="PacketId" />
-            <ref field="PropertiesList" />
+            <ref name="Properties" field="PropertiesList" />
             <list name="List">
                 <element>
                     <bundle name="Element" displayName="_">
@@ -429,7 +426,7 @@
     <message name="Suback" id="MsgId.Suback" displayName="^SubackName" sender="server">
         <fields>
             <ref field="PacketId" />
-            <ref field="PropertiesList" />
+            <ref name="Properties" field="PropertiesList" />
             <list name="List" element="ReasonCode" />
         </fields>
         <validCond>
@@ -446,7 +443,7 @@
         <construct value="%Flags.Qos = Qos.AtLeastOnceDelivery" />
         <fields>
             <ref field="PacketId" />
-            <ref field="PropertiesList" />
+            <ref name="Properties" field="PropertiesList" />
             <list name="List" element="Topic" />
         </fields>
         <validCond>
@@ -462,7 +459,7 @@
     <message name="Unsuback" id="MsgId.Unsuback" displayName="^UnsubackName" sender="server">
         <fields>
             <ref field="PacketId" />
-            <ref field="PropertiesList" />
+            <ref name="Properties" field="PropertiesList" />
             <list name="List" element="ReasonCode" />
         </fields>
         <validCond>
@@ -497,7 +494,7 @@
     <message name="Disconnect" id="MsgId.Disconnect" displayName="^DisconnectName">
         <fields>
             <optional name="ReasonCode" field="ReasonCode" displayName="Reason Code" />
-            <optional name="PropertiesList" field="PropertiesList" displayName="Properties" />
+            <optional name="Properties" field="PropertiesList" />
         </fields>
         <validCond>
             <and>
@@ -510,8 +507,8 @@
 
     <message name="Auth" id="MsgId.Auth" displayName="^AuthName">
         <fields>
-            <ref field="ReasonCode" />
-            <ref field="PropertiesList" />
+            <optional name="ReasonCode" field="ReasonCode" displayName="Reason Code" />
+            <optional name="Properties" field="PropertiesList" />
         </fields>
         <validCond>
             <and>
