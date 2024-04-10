@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.5)
+cmake_minimum_required (VERSION 3.10)
 project ("cc.mqtt5.commsdsl")
 
 option (MQTT5_WARN_AS_ERR "Treat compilation warnings as errors." ON)
