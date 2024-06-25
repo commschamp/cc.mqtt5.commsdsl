@@ -11,8 +11,15 @@ project is used to generate C++11 code of the protocol implementation.
 The [src](src) folder contains additional and/or overriding default functionality 
 code snippets, that get injected into the generated code.
 
-The generated CMake project of this protocol definition is hosted and can be
-viewed at [cc.mqtt5.generated](https://github.com/commschamp/cc.mqtt5.generated)
+The code generators from the [commsdsl](https://github.com/commschamp/commsdsl)
+repository generate full CMake projects.
+Some of these **generated** projects are hosted as separate
+repositories that can be viewed and used independently.
+
+- [cc.mqtt5.generated](https://github.com/commschamp/cc.mqtt5.generated) - Protocol 
+    definition 
+- [cc.mqtt5_protocol.cc_tools_plugin](https://github.com/commschamp/cc.mqtt5_protocol.cc_tools_plugin) -
+    Protocol plugin for the [CommsChampion Tools](https://github.com/commschamp/cc_tools_qt).
 
 # License
 Please read [License](https://github.com/commschamp/commsdsl#license)
