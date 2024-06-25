@@ -11,6 +11,7 @@ export BUILD_DIR="${ROOT_DIR}/build.full.${CC}"
 export COMMON_INSTALL_DIR=${BUILD_DIR}/install
 export COMMON_BUILD_TYPE=Debug
 export EXTERNALS_DIR=${ROOT_DIR}/externals
+export COMMON_USE_CCACHE=ON
 mkdir -p ${BUILD_DIR}
 
 ${SCRIPT_DIR}/prepare_externals.sh
@@ -18,7 +19,8 @@ ${SCRIPT_DIR}/prepare_externals.sh
 cd ${BUILD_DIR}
 cmake .. -DCMAKE_INSTALL_PREFIX=${COMMON_INSTALL_DIR} \
     -DCMAKE_BUILD_TYPE=Debug -DMQTT5_GEN_TEST=ON -DMQTT5_BUILD_PROT_DOC=ON \
-    -DMQTT5_GEN_TOOLS=ON -DMQTT5_GEN_SWIG=ON  -DMQTT5_GEN_EMSCRIPTEN=ON "$@"
+    -DMQTT5_GEN_TOOLS=ON -DMQTT5_GEN_SWIG=ON  -DMQTT5_GEN_EMSCRIPTEN=ON \
+    -DMQTT5_USE_CCACHE=ON "$@"
 
 procs=$(nproc)
 if [ -n "${procs}" ]; then
