@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="cc_mqtt5" endian="big" dslVersion="6">
+<schema name="cc_mqtt5" endian="big" dslVersion="7">
     <fields>
         <string name="ConnectName" defaultValue="CONNECT" />
         <string name="ConnackName" defaultValue="CONNACK" />
@@ -42,17 +42,16 @@
         <int name="Length" type="uint16" />
         <string name="String" lengthPrefix="Length" />
         <data name="BinData" lengthPrefix="Length" />
-        <string reuse="String" name="ProtocolName" defaultValue="MQTT" displayName="Protocol Name"/>
         <int name="PacketId" type="uint16" displayName="Packet ID"/>
         <ref name="Topic" field="String" />
         <int name="VarLenInt" type="uintvar" length="4" endian="little"/>
-        <int name="PropertyId" reuse="VarLenInt" displayReadOnly="true" failOnInvalid="true" displayName="Id"/>
+        <int name="PropertyId" reuse="VarLenInt" failOnInvalid="true" displayName="Id"/>
         <enum name="EnableEnum" type="uint8">
             <validValue name="Disabled" val="0" />
             <validValue name="Enabled" val="1"/>
         </enum>
 
-        <variant name="Property" displayIdxReadOnlyHidden="true" displayName="_">
+        <variant name="Property" displayName="_">
             <bundle name="PayloadFormatIndicator" displayName="Property Format Indicator">
                 <int reuse="PropertyId" name="Id" defaultValidValue="1" />
                 <enum name="Value" type="uint8">
@@ -224,6 +223,11 @@
             <validValue name="SubIdsNotSupported" val="161" displayName="Sub IDs not supported" />
             <validValue name="WildcardSubsNotSupported" val="162" displayName="Wildcard Subs not supported" />
         </enum>
+
+        <bitfield name="IdAndFlagsField" displayName="ID + Flags" valueOverride="replace">
+            <int name="Flags" type="uint8" bitLength="4" />
+            <ref name="Id" field="MsgId" bitLength="4" />
+        </bitfield>         
     </fields>
     
     <interface name="Message">
@@ -239,14 +243,7 @@
     </interface>
     
     <frame name="Frame">
-        <custom name="IdAndFlags" semanticLayerType="id">
-            <field>
-                <bitfield name="IdAndFlagsField" displayName="ID + Flags">
-                    <int name="Flags" type="uint8" bitLength="4" />
-                    <ref name="Id" field="MsgId" bitLength="4" />
-                </bitfield>              
-            </field>
-        </custom>
+        <custom name="IdAndFlags" semanticLayerType="id" field="IdAndFlagsField" />
         <size name="Size">
             <field>
                 <int name="Size" type="uintvar" length="4" endian="little"/>
@@ -257,7 +254,7 @@
     
     <message name="Connect" id="MsgId.Connect" displayName="^ConnectName" sender="client">
         <fields>
-            <ref field="ProtocolName" />
+            <string name="ProtocolName" reuse="String" defaultValidValue="MQTT" failOnInvalid="true" displayName="Protocol Name"/>
             <int name="ProtocolVersion" type="uint8" defaultValidValue="5" failOnInvalid="true" displayName="Protocol Version"/>
             <bitfield name="Flags" displayName="Connect Flags">
                 <set name="Low" bitLength="3" displayName="_">
@@ -274,31 +271,31 @@
             <int name="KeepAlive" type="uint16" displayName="Keep Alive" units="seconds" />
             <ref field="PropertiesList" name="Properties" />
             <ref name="ClientId" field="String" displayName="Client ID" />
-            <optional name="WillProperties" defaultMode="missing" displayExtModeCtrl="true" displayName="Will Properties">
+            <optional name="WillProperties" defaultMode="missing" displayName="Will Properties">
                 <cond value="$Flags.Low.willFlag" />
                 <field>
                     <ref field="PropertiesList" name="ActWillProperties"  displayName="Will Properties" />
                 </field>
             </optional>
-            <optional name="WillTopic" displayName="Will Topic" defaultMode="missing" displayExtModeCtrl="true">
+            <optional name="WillTopic" displayName="Will Topic" defaultMode="missing">
                 <cond value="$Flags.Low.willFlag" />
                 <field>
                     <ref name="WillTopic" field="String" displayName="Will Topic" />           
                 </field>
             </optional>
-            <optional name="WillMessage" displayName="Will Message" defaultMode="missing" displayExtModeCtrl="true">
+            <optional name="WillMessage" displayName="Will Message" defaultMode="missing">
                 <cond value="$Flags.Low.willFlag" />
                 <field>
                     <ref name="WillMessage" field="BinData" displayName="Will Message" />           
                 </field>
             </optional>        
-            <optional name="UserName" displayName="User Name" defaultMode="missing" displayExtModeCtrl="true">
+            <optional name="UserName" displayName="User Name" defaultMode="missing">
                 <cond value="$Flags.High.userNameFlag" />
                 <field>
                     <ref name="UserName" field="String" displayName="User Name" />           
                 </field>
             </optional>        
-            <optional name="Password" defaultMode="missing" displayExtModeCtrl="true">
+            <optional name="Password" defaultMode="missing">
                 <cond value="$Flags.High.passwordFlag" />
                 <field>
                     <ref name="Password" field="BinData" />           
@@ -333,7 +330,7 @@
     
     <message name="Publish" id="MsgId.Publish" displayName="^PublishName">
         <ref field="Topic" />
-        <optional name="PacketId" displayName="Packet ID" defaultMode="missing" displayExtModeCtrl="true">
+        <optional name="PacketId" displayName="Packet ID" defaultMode="missing">
             <cond value="%Flags.Qos &gt; Qos.AtMostOnceDelivery" />
             <field value="PacketId" />
         </optional>
@@ -356,17 +353,9 @@
         </validCond>  
     </message> 
     
-    <message name="Pubrec" id="MsgId.Pubrec" displayName="^PubrecName" copyFieldsFrom="Puback" copyCodeFrom="Puback">
-        <validCond>
-            <and>
-                <validCond value="%Flags.Retain = 0" />
-                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
-                <validCond value="%Flags.Dup = 0" />
-            </and>
-        </validCond>   
-    </message>
+    <message name="Pubrec" reuse="Puback" reuseCode="true" id="MsgId.Pubrec" displayName="^PubrecName" />
     
-    <message name="Pubrel" id="MsgId.Pubrel" displayName="^PubrelName" copyFieldsFrom="Puback" copyCodeFrom="Puback">
+    <message name="Pubrel" id="MsgId.Pubrel" displayName="^PubrelName" copyFieldsFrom="Puback">
         <construct value="%Flags.Qos = Qos.AtLeastOnceDelivery" />
         <validCond>
             <and>
@@ -377,15 +366,7 @@
         </validCond>   
     </message>
     
-    <message name="Pubcomp" id="MsgId.Pubcomp" displayName="^PubcompName" copyFieldsFrom="Puback" copyCodeFrom="Puback">        
-        <validCond>
-            <and>
-                <validCond value="%Flags.Retain = 0" />
-                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
-                <validCond value="%Flags.Dup = 0" />
-            </and>
-        </validCond>       
-    </message>
+    <message name="Pubcomp" reuse="Puback" id="MsgId.Pubcomp" displayName="^PubcompName" />        
     
     <message name="Subscribe" id="MsgId.Subscribe" displayName="^SubscribeName" sender="client">
         <construct value="%Flags.Qos = Qos.AtLeastOnceDelivery" />    
@@ -407,7 +388,7 @@
                                 <validValue name="SendIfNotExists" val="1" />
                                 <validValue name="DontSend" val="2" />
                             </enum>
-                            <int name="Reserved" type="uint8" validValue="0" bitLength="2" displayHidden="true" />
+                            <int name="Reserved" type="uint8" validValue="0" bitLength="2" />
                         </bitfield>
                     </bundle>
                 </element>
@@ -482,13 +463,7 @@
     </message>
     
     <message name="Pingresp" id="MsgId.Pingresp" displayName="^PingrespName" sender="server">
-        <validCond>
-            <and>
-                <validCond value="%Flags.Retain = 0" />
-                <validCond value="%Flags.Qos = Qos.AtMostOnceDelivery" />
-                <validCond value="%Flags.Dup = 0" />
-            </and>
-        </validCond>       
+        <copyValidCondFrom value="Pingreq" />
     </message>
     
     <message name="Disconnect" id="MsgId.Disconnect" displayName="^DisconnectName">

@@ -1,0 +1,10 @@
+typename Field_id::ValueType getValue() const
+{
+    return field_id().getValue();
+}
+
+template <typename T>
+void setValue(T&& val)
+{
+    field_id().setValue(std::forward<T>(val));
+}
