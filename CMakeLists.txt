@@ -92,23 +92,15 @@ if (MQTT5_GEN_PROTOCOL)
 
     set (prot_tmp_dir "${CMAKE_BINARY_DIR}/output.tmp")
 
-    add_custom_target(rm_prot_tmp_tgt
+    add_custom_target(${PROT_OUTPUT_TGT} ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${prot_tmp_dir}
-    )
-
-    add_custom_command(
-        OUTPUT ${prot_tmp_dir}
-        DEPENDS ${schema_file} ${src_files} rm_prot_tmp_tgt
         COMMAND ${COMMSDSL2COMMS} ${warn_as_error} -V ${MQTT5_VERSION}
             -o ${prot_tmp_dir} -c ${PROJECT_SOURCE_DIR}/src/protocol
-            ${COMMSDSL2COMMS_EXTRA_ARGS}  ${schema_file}
-    )
-
-    add_custom_target(${PROT_OUTPUT_TGT} ALL
+            ${COMMSDSL2COMMS_EXTRA_ARGS} ${schema_file}        
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${prot_tmp_dir}" -DOUTPUT="${MQTT5_PROT_OUTPUT_DIR}"
             -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"
-        DEPENDS ${prot_tmp_dir} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
+        DEPENDS "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
 
     if (MQTT5_BUILD_PROTOCOL)
         execute_process(
@@ -161,22 +153,14 @@ if (MQTT5_GEN_TEST)
 
     set (test_tmp_dir "${CMAKE_BINARY_DIR}/output_test.tmp")
 
-    add_custom_target(rm_test_tmp_tgt
+    add_custom_target("test_output_tgt" ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${test_tmp_dir}
-    )
-
-    add_custom_command(
-        OUTPUT ${test_tmp_dir}
-        DEPENDS ${schema_file} ${src_files} rm_test_tmp_tgt
         COMMAND ${COMMSDSL2TEST} ${warn_as_error} ${COMMSDSL2TEST_EXTRA_ARGS}
             -o ${test_tmp_dir} -c ${PROJECT_SOURCE_DIR}/src/test ${schema_file}
-    )
-
-    add_custom_target("test_output_tgt" ALL
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${test_tmp_dir}" -DOUTPUT="${MQTT5_TEST_OUTPUT_DIR}"
             -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"        
-        DEPENDS ${test_tmp_dir} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
+        DEPENDS "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
 
     if (MQTT5_BUILD_TEST)
         if ((NOT MQTT5_GEN_PROTOCOL) OR (NOT MQTT5_BUILD_PROTOCOL))
@@ -221,23 +205,15 @@ if (MQTT5_GEN_TOOLS)
 
     set (tools_tmp_dir "${CMAKE_BINARY_DIR}/output_tools.tmp")
 
-    add_custom_target(rm_tools_tmp_tgt
+    add_custom_target("tools_output_tgt" ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${tools_tmp_dir}
-    )
-
-    add_custom_command(
-        OUTPUT ${tools_tmp_dir}
-        DEPENDS ${schema_file} ${src_files} rm_tools_tmp_tgt
         COMMAND ${COMMSDSL2TOOLS_QT} ${warn_as_error} ${COMMSDSL2TOOLS_QT_EXTRA_ARGS}
             --protocol "::CC MQTT v5:MQTT v5 protocol.:cc.Mqtt5ProtocolPlugin"
             -o ${tools_tmp_dir} -c ${PROJECT_SOURCE_DIR}/src/tools ${schema_file}
-    )
-
-    add_custom_target("tools_output_tgt" ALL
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${tools_tmp_dir}" -DOUTPUT="${MQTT5_TOOLS_OUTPUT_DIR}"
             -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"        
-        DEPENDS ${tools_tmp_dir} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
+        DEPENDS "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
 
     if (MQTT5_BUILD_TOOLS)
         if ((NOT MQTT5_GEN_PROTOCOL) OR (NOT MQTT5_BUILD_PROTOCOL))
@@ -282,22 +258,14 @@ if (MQTT5_GEN_SWIG)
 
     set (swig_tmp_dir "${CMAKE_BINARY_DIR}/output_swig.tmp")
 
-    add_custom_target(rm_swig_tmp_tgt
+    add_custom_target("swig_output_tgt" ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${swig_tmp_dir}
-    )
-
-    add_custom_command(
-        OUTPUT ${swig_tmp_dir}
-        DEPENDS ${schema_file} ${src_files} rm_swig_tmp_tgt
         COMMAND ${COMMSDSL2SWIG} ${warn_as_error} ${COMMSDSL2SWIG_EXTRA_ARGS}
             -c ${MQTT5_SWIG_SRC_DIR} -o ${swig_tmp_dir} ${schema_file}
-    )
-
-    add_custom_target("swig_output_tgt" ALL
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${swig_tmp_dir}" -DOUTPUT="${MQTT5_SWIG_OUTPUT_DIR}"
             -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"        
-        DEPENDS ${swig_tmp_dir} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
+        DEPENDS "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
 
     if (MQTT5_BUILD_SWIG)
         if ((NOT MQTT5_GEN_PROTOCOL) OR (NOT MQTT5_BUILD_PROTOCOL))
@@ -348,22 +316,14 @@ if (MQTT5_GEN_EMSCRIPTEN)
 
     set (emscripten_tmp_dir "${CMAKE_BINARY_DIR}/output_emscripten.tmp")
 
-    add_custom_target(rm_emscripten_tmp_tgt
+    add_custom_target("emscripten_output_tgt" ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${emscripten_tmp_dir}
-    )
-
-    add_custom_command(
-        OUTPUT ${emscripten_tmp_dir}
-        DEPENDS ${schema_file} ${src_files} rm_emscripten_tmp_tgt
         COMMAND ${COMMSDSL2EMSCRIPTEN} ${warn_as_error} ${COMMSDSL2EMSCRIPTEN_EXTRA_ARGS}
             -o ${emscripten_tmp_dir} -c ${PROJECT_SOURCE_DIR}/src/emscripten ${schema_file}
-    )
-
-    add_custom_target("emscripten_output_tgt" ALL
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${emscripten_tmp_dir}" -DOUTPUT="${MQTT5_EMSCRIPTEN_OUTPUT_DIR}"
             -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"        
-        DEPENDS ${emscripten_tmp_dir} "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
+        DEPENDS "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
 
     if (MQTT5_BUILD_EMSCRIPTEN)
         if ((NOT MQTT5_GEN_PROTOCOL) OR (NOT MQTT5_BUILD_PROTOCOL))
