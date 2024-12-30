@@ -45,7 +45,7 @@
         <int name="PacketId" type="uint16" displayName="Packet ID"/>
         <ref name="Topic" field="String" />
         <int name="VarLenInt" type="uintvar" length="4" endian="little"/>
-        <int name="PropertyId" reuse="VarLenInt" failOnInvalid="true" displayName="Id"/>
+        <int name="PropertyId" reuse="VarLenInt" failOnInvalid="true" fixedValue="true" displayName="Id"/>
         <enum name="EnableEnum" type="uint8">
             <validValue name="Disabled" val="0" />
             <validValue name="Enabled" val="1"/>
