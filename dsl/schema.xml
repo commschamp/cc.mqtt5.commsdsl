@@ -228,6 +228,8 @@
             <int name="Flags" type="uint8" bitLength="4" />
             <ref name="Id" field="MsgId" bitLength="4" />
         </bitfield>         
+
+        <string name="ProtocolName" reuse="String" defaultValidValue="MQTT" failOnInvalid="true" displayName="Protocol Name"/>
     </fields>
     
     <interface name="Message">
@@ -254,7 +256,7 @@
     
     <message name="Connect" id="MsgId.Connect" displayName="^ConnectName" sender="client">
         <fields>
-            <string name="ProtocolName" reuse="String" defaultValidValue="MQTT" failOnInvalid="true" displayName="Protocol Name"/>
+            <ref field="ProtocolName" failOnInvalid="true" />
             <int name="ProtocolVersion" type="uint8" defaultValidValue="5" failOnInvalid="true" displayName="Protocol Version"/>
             <bitfield name="Flags" displayName="Connect Flags">
                 <set name="Low" bitLength="3" displayName="_">
