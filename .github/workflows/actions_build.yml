@@ -1,11 +1,16 @@
 name: Github Actions Build
 
-on: [push]
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
 
 env:
-  COMMS_TAG: v5.2.7
-  COMMSDSL_TAG: v6.3.4
-  CC_TOOLS_QT_TAG: v5.3.3
+  COMMS_TAG: v5.3
+  COMMSDSL_TAG: v7.0
+  CC_TOOLS_QT_TAG: v6.0
 
 jobs:
   build_gcc_old_ubuntu_20_04:
@@ -116,7 +121,7 @@ jobs:
         COMMON_CXX_STANDARD: ${{matrix.cpp}}
         COMMS_TAG: ${{env.COMMS_TAG}}
         COMMSDSL_TAG: ${{env.COMMSDSL_TAG}}
-        CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_TAG}}
+        CC_TOOLS_QT_SKIP: 1
 
     - name: Configure CMake
       shell: bash
@@ -124,11 +129,10 @@ jobs:
       run: |
         cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
         -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCMAKE_CXX_STANDARD=${{matrix.cpp}} \
-        -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}}
+        -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON
       env:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
-        BUILD_TOOLS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
@@ -308,7 +312,7 @@ jobs:
         COMMON_CXX_STANDARD: ${{matrix.cpp}}
         COMMS_TAG: ${{env.COMMS_TAG}}
         COMMSDSL_TAG: ${{env.COMMSDSL_TAG}}
-        CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_TAG}}
+        CC_TOOLS_QT_SKIP: 1
 
     - name: Configure CMake
       shell: bash
@@ -316,12 +320,10 @@ jobs:
       run: |
         cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
         -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install \
-        -DCMAKE_CXX_STANDARD=${{matrix.cpp}} -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON \
-        -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}}
+        -DCMAKE_CXX_STANDARD=${{matrix.cpp}} -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
-        BUILD_TOOLS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
@@ -369,8 +371,7 @@ jobs:
         COMMON_CXX_STANDARD: ${{matrix.cpp}}
         COMMS_TAG: ${{env.COMMS_TAG}}
         COMMSDSL_TAG: ${{env.COMMSDSL_TAG}}
-        CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_TAG}} 
-        CC_TOOLS_QT_SKIP: "${{ matrix.cpp < 17 && '1' || '0' }}"
+        CC_TOOLS_QT_SKIP: 1
 
     - name: Configure CMake
       shell: bash
@@ -378,11 +379,10 @@ jobs:
       run: |
         cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
         -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCMAKE_CXX_STANDARD=${{matrix.cpp}} \
-        -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}}
+        -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
-        BUILD_TOOLS: "${{ matrix.cpp == 17 && 'ON' || 'OFF' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
@@ -525,7 +525,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [Debug, Release, MinSizeRel]
+        type: [Debug, Release]
         arch: [Win32, x64]
         cpp: [11, 14, 17]
         qt_ver: [5, 6]
@@ -592,7 +592,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [Debug, Release, MinSizeRel]
+        type: [Debug, Release]
         arch: [Win32, x64]
         cpp: [11, 14, 17, 20]
 
