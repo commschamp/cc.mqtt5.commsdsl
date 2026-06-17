@@ -74,7 +74,7 @@ jobs:
         -DMQTT5_TOOLS_QT_VER=${{matrix.qt_ver}} \
         -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}} \
         -DMQTT5_GEN_SWIG=ON -DMQTT5_GEN_EMSCRIPTEN=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=${{env.BUILD_LATEX}} \
-        -DMQTT5_BUILD_PROT_DOC=${{env.BUILD_DOCS}}
+        -DMQTT5_GEN_WIRESHARK=ON -DMQTT5_BUILD_PROT_DOC=${{env.BUILD_DOCS}}
       env:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
@@ -138,7 +138,8 @@ jobs:
         -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCMAKE_CXX_STANDARD=${{matrix.cpp}} \
         -DMQTT5_TOOLS_QT_VER=${{matrix.qt_ver}} \
         -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}} \
-        -DMQTT5_GEN_SWIG=ON -DMQTT5_GEN_EMSCRIPTEN=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=OFF
+        -DMQTT5_GEN_SWIG=ON -DMQTT5_GEN_EMSCRIPTEN=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=OFF \
+        -DMQTT5_GEN_WIRESHARK=ON
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
@@ -213,7 +214,8 @@ jobs:
         -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCMAKE_CXX_STANDARD=${{matrix.cpp}} \
         -DMQTT5_TOOLS_QT_VER=${{matrix.qt_ver}} \
         -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}} \
-        -DMQTT5_GEN_SWIG=ON -DMQTT5_GEN_EMSCRIPTEN=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=OFF
+        -DMQTT5_GEN_SWIG=ON -DMQTT5_GEN_EMSCRIPTEN=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=OFF \
+        -DMQTT5_GEN_WIRESHARK=ON
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
@@ -284,6 +286,7 @@ jobs:
           -DCMAKE_CXX_STANDARD=${{matrix.cpp}} -DMQTT5_TOOLS_QT_VER=${{matrix.qt_ver}} ^
           -DCMAKE_CXX_STANDARD=${{matrix.cpp}} -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}} -DMQTT5_TOOLS_QT_VER=${{matrix.qt_ver}} ^
           -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=OFF ^
+          -DMQTT5_GEN_WIRESHARK=ON
       env:
         BUILD_TOOLS: "${{ matrix.cpp >= 17 && matrix.arch == 'x64'  && 'ON' || 'OFF' }}"
 
@@ -351,6 +354,7 @@ jobs:
           -DCMAKE_PREFIX_PATH="${{runner.workspace}}/build/install;${{env.QTDIR}}" ^
           -DCMAKE_CXX_STANDARD=${{matrix.cpp}}  -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}} -DMQTT5_TOOLS_QT_VER=${{matrix.qt_ver}} ^
           -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=OFF ^
+          -DMQTT5_GEN_WIRESHARK=ON
       env:
         BUILD_TOOLS: "${{ matrix.cpp >= 17 && matrix.arch == 'x64'  && 'ON' || 'OFF' }}"
 
