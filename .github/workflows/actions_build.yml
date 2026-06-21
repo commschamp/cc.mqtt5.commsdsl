@@ -8,9 +8,9 @@ on:
       - '**'
 
 env:
-  COMMS_TAG: v5.5
-  COMMSDSL_TAG: v8.0
-  CC_TOOLS_QT_TAG: v6.0.6
+  COMMS_TAG: v5.5.2
+  COMMSDSL_TAG: v8.1
+  CC_TOOLS_QT_TAG: v6.0.8
 
 jobs:
   build_gcc_ubuntu_24_04:
@@ -74,7 +74,7 @@ jobs:
         -DMQTT5_TOOLS_QT_VER=${{matrix.qt_ver}} \
         -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}} \
         -DMQTT5_GEN_SWIG=ON -DMQTT5_GEN_EMSCRIPTEN=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=${{env.BUILD_LATEX}} \
-        -DMQTT5_BUILD_PROT_DOC=${{env.BUILD_DOCS}}
+        -DMQTT5_GEN_WIRESHARK=ON -DMQTT5_BUILD_PROT_DOC=${{env.BUILD_DOCS}}
       env:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
@@ -138,7 +138,8 @@ jobs:
         -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCMAKE_CXX_STANDARD=${{matrix.cpp}} \
         -DMQTT5_TOOLS_QT_VER=${{matrix.qt_ver}} \
         -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}} \
-        -DMQTT5_GEN_SWIG=ON -DMQTT5_GEN_EMSCRIPTEN=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=OFF
+        -DMQTT5_GEN_SWIG=ON -DMQTT5_GEN_EMSCRIPTEN=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=OFF \
+        -DMQTT5_GEN_WIRESHARK=ON
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
@@ -157,7 +158,7 @@ jobs:
       fail-fast: false
       matrix:
         type: [Debug, Release, MinSizeRel]
-        cc_ver: [14, 15, 16, 17, 18]
+        cc_ver: [14, 15, 16, 17, 18, 19]
         cpp: [11, 14, 17, 20, 23]
         qt_ver: [5, 6]
         exclude:
@@ -213,7 +214,8 @@ jobs:
         -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCMAKE_CXX_STANDARD=${{matrix.cpp}} \
         -DMQTT5_TOOLS_QT_VER=${{matrix.qt_ver}} \
         -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}} \
-        -DMQTT5_GEN_SWIG=ON -DMQTT5_GEN_EMSCRIPTEN=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=OFF
+        -DMQTT5_GEN_SWIG=ON -DMQTT5_GEN_EMSCRIPTEN=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=OFF \
+        -DMQTT5_GEN_WIRESHARK=ON
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
@@ -235,9 +237,6 @@ jobs:
         arch: [Win32, x64]
         cpp: [11, 14, 17, 20]
         qt_ver: [5, 6]
-        exclude:
-          - arch: Win32
-            qt_ver: 6
 
     steps:
     - uses: actions/checkout@v4
@@ -245,21 +244,17 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
 
-    - name: Install Qt
+    - name: Install Qt (sets QT_ROOT_DIR)
       if: ${{matrix.cpp >= 17 && matrix.arch == 'x64'}}
-      shell: cmd
-      run: |
-        choco install curl
-        curl -L https://github.com/martinrotter/qt-minimalistic-builds/releases/download/${{env.QT_VER}}/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64.7z -o ${{runner.workspace}}/qt.7z
-        7z x ${{runner.workspace}}/qt.7z -o${{runner.workspace}}/qt
-        echo QT_VER=${{env.QT_VER}} >>%GITHUB_ENV%
-        echo QTDIR=${{runner.workspace}}/qt/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64 >>%GITHUB_ENV%
-      env:
-        QT_VER: ${{matrix.qt_ver == '5' && '5.15.3' || '6.2.2'}}
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ matrix.qt_ver == 5 && '5.15.*' || '6.8.*' }}
+        cache: true
 
     - name: Prepare externals
       shell: cmd
       run: |
+        set QTDIR=%QT_ROOT_DIR%
         %GITHUB_WORKSPACE%\script\prepare_externals.bat
       env:
         BUILD_DIR: ${{runner.workspace}}/build
@@ -273,7 +268,7 @@ jobs:
         COMMSDSL_PLATFORM: 'x64'
         CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_TAG}}
         CC_TOOLS_QT_MAJOR_QT_VERSION: ${{matrix.qt_ver}}
-        CC_TOOLS_QT_SKIP: ${{matrix.arch == 'Win32' && '1' || '0'}}
+        CC_TOOLS_QT_SKIP: ${{ matrix.cpp >= 17 && matrix.arch == 'x64' && (matrix.qt_ver == 6 || matrix.cpp < 20) && '0' || '1' }}
 
     - name: Configure CMake
       shell: cmd
@@ -284,8 +279,9 @@ jobs:
           -DCMAKE_CXX_STANDARD=${{matrix.cpp}} -DMQTT5_TOOLS_QT_VER=${{matrix.qt_ver}} ^
           -DCMAKE_CXX_STANDARD=${{matrix.cpp}} -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}} -DMQTT5_TOOLS_QT_VER=${{matrix.qt_ver}} ^
           -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=OFF ^
+          -DMQTT5_GEN_WIRESHARK=ON
       env:
-        BUILD_TOOLS: "${{ matrix.cpp >= 17 && matrix.arch == 'x64'  && 'ON' || 'OFF' }}"
+        BUILD_TOOLS: "${{ matrix.cpp >= 17 && matrix.arch == 'x64' && (matrix.qt_ver == 6 || matrix.cpp < 20) && 'ON' || 'OFF' }}"
 
     - name: Build Target
       working-directory: ${{runner.workspace}}/build
@@ -294,7 +290,7 @@ jobs:
       env:
         VERBOSE: 1
 
-  build_msvc_2025:
+  build_msvc_2026:
     runs-on: windows-2025
     strategy:
       fail-fast: false
@@ -303,9 +299,6 @@ jobs:
         arch: [Win32, x64]
         cpp: [11, 14, 17, 20, 23]
         qt_ver: [5, 6]
-        exclude:
-          - arch: Win32
-            qt_ver: 6
 
     steps:
     - uses: actions/checkout@v4
@@ -313,21 +306,17 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
 
-    - name: Install Qt
+    - name: Install Qt (sets QT_ROOT_DIR)
       if: ${{matrix.cpp >= 17 && matrix.arch == 'x64'}}
-      shell: cmd
-      run: |
-        choco install curl
-        curl -L https://github.com/martinrotter/qt-minimalistic-builds/releases/download/${{env.QT_VER}}/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64.7z -o ${{runner.workspace}}/qt.7z
-        7z x ${{runner.workspace}}/qt.7z -o${{runner.workspace}}/qt
-        echo QT_VER=${{env.QT_VER}} >>%GITHUB_ENV%
-        echo QTDIR=${{runner.workspace}}/qt/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64 >>%GITHUB_ENV%
-      env:
-        QT_VER: ${{matrix.qt_ver == '5' && '5.15.3' || '6.2.2'}}
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ matrix.qt_ver == 5 && '5.15.*' || '6.8.*' }}
+        cache: true
 
     - name: Prepare externals
       shell: cmd
       run: |
+        set QTDIR=%QT_ROOT_DIR%
         %GITHUB_WORKSPACE%\script\prepare_externals.bat
       env:
         BUILD_DIR: ${{runner.workspace}}/build
@@ -341,7 +330,7 @@ jobs:
         COMMSDSL_PLATFORM: 'x64'
         CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_TAG}}
         CC_TOOLS_QT_MAJOR_QT_VERSION: ${{matrix.qt_ver}}
-        CC_TOOLS_QT_SKIP: ${{matrix.arch == 'Win32' && '1' || '0'}}
+        CC_TOOLS_QT_SKIP: ${{ matrix.cpp >= 17 && matrix.arch == 'x64' && (matrix.qt_ver == 6 || matrix.cpp < 20) && '0' || '1' }}
 
     - name: Configure CMake
       shell: cmd
@@ -351,8 +340,9 @@ jobs:
           -DCMAKE_PREFIX_PATH="${{runner.workspace}}/build/install;${{env.QTDIR}}" ^
           -DCMAKE_CXX_STANDARD=${{matrix.cpp}}  -DMQTT5_GEN_TOOLS=ON -DMQTT5_BUILD_TOOLS=${{env.BUILD_TOOLS}} -DMQTT5_TOOLS_QT_VER=${{matrix.qt_ver}} ^
           -DMQTT5_GEN_PROTOCOL=ON -DMQTT5_GEN_TEST=ON -DMQTT5_GEN_C=ON -DMQTT5_GEN_LATEX=ON -DMQTT5_BUILD_LATEX=OFF ^
+          -DMQTT5_GEN_WIRESHARK=ON
       env:
-        BUILD_TOOLS: "${{ matrix.cpp >= 17 && matrix.arch == 'x64'  && 'ON' || 'OFF' }}"
+        BUILD_TOOLS: "${{ matrix.cpp >= 17 && matrix.arch == 'x64' && (matrix.qt_ver == 6 || matrix.cpp < 20) && 'ON' || 'OFF' }}"
 
     - name: Build Target
       working-directory: ${{runner.workspace}}/build

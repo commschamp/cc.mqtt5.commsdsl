@@ -1,0 +1,20 @@
+    local result = cc_mqtt5_local.StatusCode.SUCCESS
+    local next_offset = offset
+    result, next_offset = cc_mqtt5_local.field_IdAndFlagsField_read(tvb, tree, offset, offset_limit)
+    if result == cc_mqtt5_local.StatusCode.INVALID_MSG_DATA then
+        return cc_mqtt5_local.StatusCode.MALFORMED_PACKET, next_offset
+    end
+    if result ~= cc_mqtt5_local.StatusCode.SUCCESS then
+        return result, next_offset
+    end
+
+    local id = cc_mqtt5_local.field_IdAndFlagsFieldMembers_Id_value()
+    local msg = cc_mqtt5_local.frame_FrameLayers_IdAndFlags_msg[id]
+    offset = next_offset
+    local next_func = funcs[next_idx]
+    if next_func == nil then
+        return cc_mqtt5_local.StatusCode.CODEGEN_ERROR, offset
+    end
+    result, next_offset = next_func(tvb, tree, offset, offset_limit, funcs, next_idx + 1, msg)
+
+    return result, next_offset
