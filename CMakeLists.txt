@@ -43,8 +43,8 @@ option (MQTT5_GEN_WIRESHARK "Use commsdsl2wireshark to generate wireshark protoc
 # COMMSDSL2LATEX_EXTRA_ARGS - Extra arguments to pass to "commsdsl2latex"
 # COMMSDSL2WIRESHARK_EXTRA_ARGS - Extra arguments to pass to "commsdsl2wireshark"
 
-set (MQTT5_VERSION "3.0.6")
-set (MQTT5_MIN_COMMSDSL_VERSION "8.1")
+set (MQTT5_VERSION "3.0.7")
+set (MQTT5_MIN_COMMSDSL_VERSION "8.1.1")
 
 if ("${CMAKE_CXX_STANDARD}" STREQUAL "")
     set(CMAKE_CXX_STANDARD 17)
